@@ -60,6 +60,8 @@ public class Config {
 		oMain.textFieldDBName.setText(strDBName);
 		oMain.textFieldDBUsername.setText(strDBUsername);
 		oMain.passwordFieldDB.setText(strDBPassword);
+		oMain.textFieldArchivePath.setText(strArchivePath);
+		oMain.textFieldTempPath.setText(strTempPath);
 
 		if (strAppID == null) {
 			strAppID = generateRandomString(16);
@@ -137,6 +139,14 @@ public class Config {
 	 * Write the current config to disk
 	 */
 	public void save() {
+		strTempPath = oMain.textFieldTempPath.getText();
+		strArchivePath = oMain.textFieldArchivePath.getText();
+		strDBHostname = oMain.textFieldDBHostname.getText();
+		strDBPort = oMain.textFieldDBPort.getText();
+		strDBUsername = oMain.textFieldDBUsername.getText();
+		strDBPassword = new String(oMain.passwordFieldDB.getPassword());
+		strDBName = oMain.textFieldDBName.getText();
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("ImageConv config file" + System.lineSeparator());
 		sb.append("ID:" + strAppID + System.lineSeparator());

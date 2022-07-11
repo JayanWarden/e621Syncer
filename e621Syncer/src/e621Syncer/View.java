@@ -61,12 +61,14 @@ public class View {
 	public JTextArea textAreaDescription, textAreaPoolInfo;
 	private JLabel lblNewLabel, lblNewLabel_1, lblNewLabel_2, lblNewLabel_3, lblNewLabel_4, lblNewLabel_5,
 			lblNewLabel_6, lblNewLabel_7, lblNewLabel_8, lblNewLabel_9, lblNewLabel_11, lblNewLabel_10, lblNewLabel_12,
-			lblNewLabel_13, lblNewLabel_14, lblNewLabel_15, lblNewLabel_16, lblNewLabel_17, lblNewLabel_18;
+			lblNewLabel_13, lblNewLabel_14, lblNewLabel_15, lblNewLabel_16, lblNewLabel_17, lblNewLabel_18,
+			lblNewLabel_19, lblNewLabel_20;
 	public JPanel panelViewer, panelButtonBar, panelNorth, panelInfos, panelSidebar, panelMainWindow, panelPoolInfo,
 			panelPoolButtons, panelPools;
 	@SuppressWarnings("rawtypes")
 	public JComboBox comboBoxSort, comboBoxQuerySize;
-	public JTextField textFieldSearch, textFieldDBHostname, textFieldDBPort, textFieldDBName, textFieldDBUsername;
+	public JTextField textFieldSearch, textFieldDBHostname, textFieldDBPort, textFieldDBName, textFieldDBUsername,
+			textFieldTempPath, textFieldArchivePath;
 	public JPasswordField passwordFieldDB;
 	public JButton btnLeft, btnRight, btnNewButton, btnNewButton_1;
 
@@ -162,10 +164,24 @@ public class View {
 				toggleConverterThread();
 			}
 		});
+
+		lblNewLabel_19 = new JLabel("Temp Path:");
+		panelSettings.add(lblNewLabel_19, "cell 2 0,alignx trailing");
+
+		textFieldTempPath = new JTextField();
+		panelSettings.add(textFieldTempPath, "cell 3 0,alignx left");
+		textFieldTempPath.setColumns(32);
 		panelSettings.add(btnConverter, "cell 0 1");
 
 		lblConverterStatus = new JLabel("~~~~");
 		panelSettings.add(lblConverterStatus, "cell 1 1");
+
+		lblNewLabel_20 = new JLabel("Archive Path:");
+		panelSettings.add(lblNewLabel_20, "cell 2 1,alignx trailing");
+
+		textFieldArchivePath = new JTextField();
+		panelSettings.add(textFieldArchivePath, "cell 3 1,alignx left");
+		textFieldArchivePath.setColumns(32);
 
 		lblNewLabel = new JLabel("WebSync Status:");
 		panelSettings.add(lblNewLabel, "cell 0 2");
@@ -184,7 +200,7 @@ public class View {
 		textFieldDBHostname.setColumns(16);
 
 		lblNewLabel_14 = new JLabel("Port:");
-		panelSettings.add(lblNewLabel_14, "cell 2 4,alignx left");
+		panelSettings.add(lblNewLabel_14, "cell 2 4,alignx right");
 
 		textFieldDBPort = new JTextField();
 		panelSettings.add(textFieldDBPort, "cell 3 4,alignx left");
@@ -206,7 +222,7 @@ public class View {
 		textFieldDBUsername.setColumns(16);
 
 		lblNewLabel_17 = new JLabel("Password:");
-		panelSettings.add(lblNewLabel_17, "cell 2 6,alignx left");
+		panelSettings.add(lblNewLabel_17, "cell 2 6,alignx right");
 
 		passwordFieldDB = new JPasswordField();
 		passwordFieldDB.setColumns(16);
@@ -436,9 +452,13 @@ public class View {
 	private void init() {
 		oConf = new Config(this);
 
-		oDB = new Database(this);
-		Thread oDBThread = new Thread(oDB, "Database Communication Thread");
-		oDBThread.start();
+		try {
+			oDB = new Database(this);
+			Thread oDBThread = new Thread(oDB, "Database Communication Thread");
+			oDBThread.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		oDBS = new DBSyncThread(this);
 		Thread oDBSThread = new Thread(oDBS, "e621 DB Sync Thread");
