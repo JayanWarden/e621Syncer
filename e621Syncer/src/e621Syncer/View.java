@@ -220,7 +220,7 @@ public class View {
 		});
 		panelSettings.add(btnSaveSettings, "cell 0 7");
 
-		lblNewLabel_18 = new JLabel("Saving settings requieres a restart");
+		lblNewLabel_18 = new JLabel("Saving settings requires a restart");
 		panelSettings.add(lblNewLabel_18, "cell 1 7 2 1");
 
 		panelViewer = new JPanel();

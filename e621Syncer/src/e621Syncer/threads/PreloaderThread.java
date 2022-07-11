@@ -223,7 +223,7 @@ public class PreloaderThread implements Runnable {
 					+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".bpg");
 			o.iFilesize = oSource.length();
 
-			String[] command = new String[] { '"' + oMain.oConf.strTempPath + "\\lib\\bpgdec.exe" + '"' + " -o \""
+			String[] command = new String[] { "\"lib\\bpgdec.exe" + '"' + " -o \""
 					+ oTarget.getAbsolutePath() + "\" " + " \"" + oSource.getAbsolutePath() + "\"" };
 
 			Runtime rt = Runtime.getRuntime();

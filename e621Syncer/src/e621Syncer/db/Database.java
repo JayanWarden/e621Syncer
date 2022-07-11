@@ -45,12 +45,12 @@ public class Database implements Runnable {
 
 		cfg = new HikariConfig();
 
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		cfg.setDriverClassName("com.mysql.jdbc.Driver");
+//		try {
+//			Class.forName("com.mysql.jdbc.Driver");
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
+//		cfg.setDriverClassName("com.mysql.jdbc.Driver");
 		cfg.setJdbcUrl("jdbc:mysql://" + oMain.oConf.strDBHostname + ":" + oMain.oConf.strDBPort + "/"
 				+ oMain.oConf.strDBName + "?useSSL=false");
 		cfg.setUsername(oMain.oConf.strDBUsername);

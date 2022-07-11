@@ -170,9 +170,9 @@ public class ConverterThread implements Runnable {
 	private boolean convertImage(File oSource, File oTarget) {
 		System.out.println(strName + " convertImage " + oSource.getName());
 		strStatus = "Converting image";
-		String[] command = new String[] { '"' + oMain.oConf.strTempPath + "\\lib\\bpgenc.exe" + '"' + " -m "
-				+ oMain.oConf.iBPGSpeed + " -q " + oMain.oConf.iBPGQP + " -premul " + " -o \""
-				+ oTarget.getAbsolutePath() + "\" " + " \"" + oSource.getAbsolutePath() + "\"" };
+		String[] command = new String[] {
+				"\"lib\\bpgenc.exe" + '"' + " -m " + oMain.oConf.iBPGSpeed + " -q " + oMain.oConf.iBPGQP + " -premul "
+						+ " -o \"" + oTarget.getAbsolutePath() + "\" " + " \"" + oSource.getAbsolutePath() + "\"" };
 
 		Runtime rt = Runtime.getRuntime();
 		try {
@@ -262,9 +262,8 @@ public class ConverterThread implements Runnable {
 				File oFinished = new File(oMain.oConf.strTempPath + "\\Temp\\"
 						+ oFile.getName().substring(0, oFile.getName().indexOf('.')) + "_thumb.jpg");
 
-				String[] command = new String[] {
-						'"' + oMain.oConf.strTempPath + "\\lib\\cjpeg-static.exe" + '"' + " -quality 60 -outfile \""
-								+ oFinished.getAbsolutePath() + "\"  \"" + oThumb.getAbsolutePath() + "\"" };
+				String[] command = new String[] { "\"lib\\cjpeg-static.exe" + '"' + " -quality 60 -outfile \""
+						+ oFinished.getAbsolutePath() + "\"  \"" + oThumb.getAbsolutePath() + "\"" };
 
 				Runtime rt = Runtime.getRuntime();
 				try {
@@ -301,8 +300,7 @@ public class ConverterThread implements Runnable {
 	private boolean convertVideo(File oSource, File oTarget, File oThumbnailTarget) {
 		System.out.println(strName + " convertVideo " + oSource.getName());
 		strStatus = "Converting video";
-		String[] command = new String[] { '"' + oMain.oConf.strTempPath + "\\lib\\ffmpeg.exe" + '"' + " -i "
-				+ oSource.getAbsolutePath()
+		String[] command = new String[] { "\"lib\\ffmpeg.exe" + '"' + " -i " + oSource.getAbsolutePath()
 				+ " -c:v libx265 -vtag hvc1 -c:a copy -preset veryslow -x265-params \"wpp=1:pmode=1:pme=1:ref=8:allow-non-conformance=1:rect=1:b-intra=1:max-merge=5:weightb=1:analyze-src-pics=1:b-adapt=2:bframes=16:bframe-bias=100:crf="
 				+ oMain.oConf.iHEVCCQP + "\"" + " " + oTarget.getAbsolutePath() + "\"" };
 
@@ -324,9 +322,8 @@ public class ConverterThread implements Runnable {
 		if (oTarget.exists()) {
 			if (oTarget.length() > 0) {
 				strStatus = "Creating video thumbnail";
-				command = new String[] { '"' + oMain.oConf.strTempPath + "\\lib\\ffmpeg.exe" + '"' + " -i "
-						+ oSource.getAbsolutePath() + " -vf \"select=eq(n\\,0)\" -q:v 1 -frames:v 1 "
-						+ oThumbnailTarget.getAbsolutePath() + "\"" };
+				command = new String[] { "\"lib\\ffmpeg.exe" + '"' + " -i " + oSource.getAbsolutePath()
+						+ " -vf \"select=eq(n\\,0)\" -q:v 1 -frames:v 1 " + oThumbnailTarget.getAbsolutePath() + "\"" };
 
 				rt = Runtime.getRuntime();
 				try {
