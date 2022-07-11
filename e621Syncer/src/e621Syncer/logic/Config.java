@@ -16,12 +16,12 @@ public class Config {
 
 	public String strVersion = "0.1";
 	public String strUserAgent;
-	public String strTempPath = "I:\\AppData\\e621Syncer";
-	public String strArchivePath = "S:\\e621";
+	public String strTempPath = "";
+	public String strArchivePath = "";
 	public String strDBHostname = "localhost";
 	public String strDBPort = "3306";
 	public String strDBUsername = "e621sync";
-	public String strDBPassword = "2489576bzns8o7ertz5fo9w83jztsion7erzt5v90w348z598noserztb";
+	public String strDBPassword = "";
 	public String strDBName = "e621sync";
 	public int iNumWorkers = 1;
 	public int iNumDBThreads = 16;
