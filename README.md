@@ -8,32 +8,32 @@ Uses BPG to compress images and HEVC for videos
 
 ## Needed Java libraries
 
-Common-io
-Common-io Image
-Common-lang
-Commons-beanutils
-Commons-codec
-Commons-collections4
-Commons-io
-Commons-lang3
-Commons-logging
-Commons-text
-HikariCP
-httpclient
-httpcore
-imageio-core
-imageio-jpeg
-imageio-metadata
-imageio-tiff
-jnativehook
-mysql-connector-java
-opencsv
-slf4j-api
+- Common-io
+- Common-io Image
+- Common-lang
+- Commons-beanutils
+- Commons-codec
+- Commons-collections4
+- Commons-io
+- Commons-lang3
+- Commons-logging
+- Commons-text
+- HikariCP
+- httpclient
+- httpcore
+- imageio-core
+- imageio-jpeg
+- imageio-metadata
+- imageio-tiff
+- jnativehook
+- mysql-connector-java
+- opencsv
+- slf4j-api
 
 ## Additional external tools
 
-BPG Image De- / Compressor -> https://bellard.org/bpg/
-FFMPEG -> https://ffmpeg.org/
+- BPG Image De- / Compressor -> https://bellard.org/bpg/
+- FFMPEG -> https://ffmpeg.org/
 
 ## How to run this project
 
@@ -41,3 +41,7 @@ Download e621Syncer.sql and import the script into your favourite database tool.
 
 Clone this project and supply all dependencies, run it in your favourite IDE.
 Or simply download a release and run it that way.
+
+## TODO
+
+- Videos don't play back yet. Possible VLC integration?
