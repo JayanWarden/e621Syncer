@@ -34,6 +34,7 @@ Uses BPG to compress images and HEVC for videos
 
 - BPG Image De- / Compressor -> https://bellard.org/bpg/
 - FFMPEG -> https://ffmpeg.org/
+- MozJPG -> https://github.com/mozilla/mozjpeg
 
 ## How to run this project
 
