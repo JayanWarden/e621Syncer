@@ -320,6 +320,8 @@ public class ViewerLogic {
 
 						if (o.oResultPostObject1.strExtConv.equals("gif")) {
 							label.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
+						} else if (o.oResultPostObject1.strExtConv.equals("mp4")) {
+							label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 5));
 						}
 
 						label.addMouseListener(new MouseAdapter() {
@@ -396,6 +398,8 @@ public class ViewerLogic {
 
 				if (o.oResultPostObject1.strExtConv.equals("gif")) {
 					label.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
+				} else if (o.oResultPostObject1.strExtConv.equals("mp4")) {
+					label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 5));
 				}
 
 				label.addMouseListener(new MouseAdapter() {
