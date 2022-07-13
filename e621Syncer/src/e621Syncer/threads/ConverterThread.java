@@ -42,6 +42,7 @@ public class ConverterThread implements Runnable {
 		oMain = o;
 		iOffset = i;
 		strStatus = "initialized";
+		strName = strName + " " + i;
 	}
 
 	/**
