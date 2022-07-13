@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -24,9 +25,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
@@ -50,7 +53,7 @@ public class View {
 
 	public Database oDB;
 	public DownloadThread oDown;
-	public ConverterThread oConvert;
+	public ArrayList<ConverterThread> aConverters = new ArrayList<ConverterThread>();
 	public Config oConf;
 	public DBSyncThread oDBS;
 	public ViewerLogic oUILogic;
@@ -62,7 +65,7 @@ public class View {
 	private JLabel lblNewLabel, lblNewLabel_1, lblNewLabel_2, lblNewLabel_3, lblNewLabel_4, lblNewLabel_5,
 			lblNewLabel_6, lblNewLabel_7, lblNewLabel_8, lblNewLabel_9, lblNewLabel_11, lblNewLabel_10, lblNewLabel_12,
 			lblNewLabel_13, lblNewLabel_14, lblNewLabel_15, lblNewLabel_16, lblNewLabel_17, lblNewLabel_18,
-			lblNewLabel_19, lblNewLabel_20;
+			lblNewLabel_19, lblNewLabel_20, lblNewLabel_21, lblNewLabel_22;
 	public JPanel panelViewer, panelButtonBar, panelNorth, panelInfos, panelSidebar, panelMainWindow, panelPoolInfo,
 			panelPoolButtons, panelPools;
 	@SuppressWarnings("rawtypes")
@@ -71,6 +74,7 @@ public class View {
 			textFieldTempPath, textFieldArchivePath;
 	public JPasswordField passwordFieldDB;
 	public JButton btnLeft, btnRight, btnNewButton, btnNewButton_1;
+	public JSpinner spinnerConverterThreads;
 
 	public DefaultListModel<TagObject> modelTags = new DefaultListModel<>();
 	public JList<TagObject> listSidebar;
@@ -145,7 +149,7 @@ public class View {
 		JPanel panelSettings = new JPanel();
 		panelSettings.setBackground(Color.GRAY);
 		tabbedPane.addTab("Settings", null, panelSettings, null);
-		panelSettings.setLayout(new MigLayout("", "[][][][]", "[][][][][][][][]"));
+		panelSettings.setLayout(new MigLayout("", "[][][][]", "[][][][][][][][][][][][]"));
 
 		btnDownloader = new JButton("Start Downloader");
 		btnDownloader.addActionListener(new ActionListener() {
@@ -164,24 +168,7 @@ public class View {
 				toggleConverterThread();
 			}
 		});
-
-		lblNewLabel_19 = new JLabel("Temp Path:");
-		panelSettings.add(lblNewLabel_19, "cell 2 0,alignx trailing");
-
-		textFieldTempPath = new JTextField();
-		panelSettings.add(textFieldTempPath, "cell 3 0,alignx left");
-		textFieldTempPath.setColumns(32);
 		panelSettings.add(btnConverter, "cell 0 1");
-
-		lblConverterStatus = new JLabel("~~~~");
-		panelSettings.add(lblConverterStatus, "cell 1 1");
-
-		lblNewLabel_20 = new JLabel("Archive Path:");
-		panelSettings.add(lblNewLabel_20, "cell 2 1,alignx trailing");
-
-		textFieldArchivePath = new JTextField();
-		panelSettings.add(textFieldArchivePath, "cell 3 1,alignx left");
-		textFieldArchivePath.setColumns(32);
 
 		lblNewLabel = new JLabel("WebSync Status:");
 		panelSettings.add(lblNewLabel, "cell 0 2");
@@ -228,16 +215,43 @@ public class View {
 		passwordFieldDB.setColumns(16);
 		panelSettings.add(passwordFieldDB, "cell 3 6,alignx left");
 
+		lblNewLabel_19 = new JLabel("Temp Path:");
+		panelSettings.add(lblNewLabel_19, "cell 0 7,alignx trailing");
+
+		textFieldTempPath = new JTextField();
+		panelSettings.add(textFieldTempPath, "cell 1 7,alignx left");
+		textFieldTempPath.setColumns(32);
+
+		lblNewLabel_20 = new JLabel("Archive Path:");
+		panelSettings.add(lblNewLabel_20, "cell 0 8,alignx trailing");
+
+		textFieldArchivePath = new JTextField();
+		panelSettings.add(textFieldArchivePath, "cell 1 8,alignx left");
+		textFieldArchivePath.setColumns(32);
+
+		lblConverterStatus = new JLabel("~~~~");
+		panelSettings.add(lblConverterStatus, "cell 1 1 3 1");
+
 		btnSaveSettings = new JButton("Save Settings");
 		btnSaveSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveSettings();
 			}
 		});
-		panelSettings.add(btnSaveSettings, "cell 0 7");
+
+		lblNewLabel_22 = new JLabel("Misc Settings");
+		panelSettings.add(lblNewLabel_22, "cell 0 9");
+
+		lblNewLabel_21 = new JLabel("Converter thread count:");
+		panelSettings.add(lblNewLabel_21, "cell 0 10,alignx trailing");
+
+		spinnerConverterThreads = new JSpinner();
+		spinnerConverterThreads.setModel(new SpinnerNumberModel(1, 1, 8, 1));
+		panelSettings.add(spinnerConverterThreads, "cell 1 10");
+		panelSettings.add(btnSaveSettings, "cell 0 11");
 
 		lblNewLabel_18 = new JLabel("Saving settings requires a restart");
-		panelSettings.add(lblNewLabel_18, "cell 1 7 2 1");
+		panelSettings.add(lblNewLabel_18, "cell 1 11");
 
 		panelViewer = new JPanel();
 		panelViewer.setBackground(Color.GRAY);
@@ -465,7 +479,11 @@ public class View {
 		oDBSThread.start();
 
 		oDown = new DownloadThread(this);
-		oConvert = new ConverterThread(this);
+
+		for (int i = 0; i < oConf.iConverterThreads; i++) {
+			ConverterThread o = new ConverterThread(this, i);
+			aConverters.add(o);
+		}
 
 		oUILogic = new ViewerLogic(this);
 
@@ -566,19 +584,21 @@ public class View {
 	 * Starts/Stops the converter thread
 	 */
 	private void toggleConverterThread() {
-		if (oConvert.bRunning) {
-			oConvert.bRunning = false;
-			btnConverter.setText("Start Converter");
-		} else {
-			if (oConvert.bExited) {
-				oConvert.bRunning = true;
-				oConvert.bExited = false;
-				Thread oThread = new Thread(oConvert, "Converter Thread");
-				oThread.start();
+		for (ConverterThread oConvert : aConverters) {
+			if (oConvert.bRunning) {
+				oConvert.bRunning = false;
+				btnConverter.setText("Start Converter");
 			} else {
-				oConvert.bRunning = true;
+				if (oConvert.bExited) {
+					oConvert.bRunning = true;
+					oConvert.bExited = false;
+					Thread oThread = new Thread(oConvert, "Converter Thread");
+					oThread.start();
+				} else {
+					oConvert.bRunning = true;
+				}
+				btnConverter.setText("Stop Converter");
 			}
-			btnConverter.setText("Stop Converter");
 		}
 	}
 
@@ -636,12 +656,16 @@ public class View {
 	public void softClose() {
 		oDB.bRunning = false;
 		oDown.bRunning = false;
-		oConvert.bRunning = false;
-		while (!oDB.bExited || !oDown.bExited || !oConvert.bExited) {
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		for (ConverterThread oConvert : aConverters) {
+			oConvert.bRunning = false;
+		}
+		for (ConverterThread oConvert : aConverters) {
+			while (!oDB.bExited || !oDown.bExited || !oConvert.bExited) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 

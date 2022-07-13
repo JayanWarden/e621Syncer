@@ -773,19 +773,15 @@ public class Database implements Runnable {
 			public void run() {
 				iWorkers.incrementAndGet();
 
-				int iLastID = Integer.parseInt(o.strQuery1);
-
 				try (Connection con = ds.getConnection();) {
-					PreparedStatement ps = con
-							.prepareStatement("SELECT post_id FROM convert_queue WHERE NOT post_id = ? LIMIT 1");
-					ps.setString(1, o.strQuery1);
+					PreparedStatement ps = con.prepareStatement(
+							"SELECT post_id FROM convert_queue WHERE NOT " + o.strQuery1 + " LIMIT 1 OFFSET ?");
+					ps.setInt(1, o.iQuery1);
 					ResultSet rs = ps.executeQuery();
 					if (rs.next()) {
 						o.strQuery1 = rs.getInt("post_id") + "";
 						o.oResultPostObject1 = getPostStatic(o, con);
 						if (o.oResultPostObject1 == null) {
-							o.bNoResult = true;
-						} else if (o.oResultPostObject1.id == iLastID) {
 							o.bNoResult = true;
 						} else {
 							o.bNoResult = false;

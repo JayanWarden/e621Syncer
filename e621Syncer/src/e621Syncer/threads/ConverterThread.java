@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -30,19 +30,17 @@ public class ConverterThread implements Runnable {
 	public boolean bRunning = false;
 	public boolean bExited = true;
 
-	private int iLastID = 0;
+	public AtomicInteger iLastID = new AtomicInteger();
+	private int iOffset = 0;
 
 	/**
 	 * Create this converter object
 	 * 
 	 * @param o - View handle for the main class
 	 */
-	public ConverterThread(View o) {
+	public ConverterThread(View o, int i) {
 		oMain = o;
-		Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("JPEG");
-		while (readers.hasNext()) {
-			System.out.println("reader: " + readers.next());
-		}
+		iOffset = i;
 		strStatus = "initialized";
 	}
 
@@ -55,12 +53,21 @@ public class ConverterThread implements Runnable {
 			strStatus = "Waiting for Convert Object";
 			DBObject o = new DBObject();
 			o.command = DBCommand.GET_CONVERT_POST;
-			o.strQuery1 = iLastID + "";
+			String strQuery = "post_id = " + iLastID.get();
+			for (int i = 0; i < oMain.aConverters.size(); i++) {
+				if (i != iOffset) {
+					strQuery = strQuery + " AND NOT post_id = " + oMain.aConverters.get(i).iLastID.get();
+				}
+			}
+			o.strQuery1 = strQuery;
+			o.iQuery1 = iOffset;
 			putInQueue(o);
 			Config.waitForCommand(o, 0);
 			if (!o.bNoResult) {
-				iLastID = o.oResultPostObject1.id;
-				convert(o);
+				if (o.oResultPostObject1.id != iLastID.get()) {
+					iLastID.set(o.oResultPostObject1.id);
+					convert(o);
+				}
 			} else {
 				strStatus = "Sleeping";
 				try {

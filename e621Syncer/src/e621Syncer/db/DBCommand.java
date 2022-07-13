@@ -84,7 +84,8 @@ public enum DBCommand {
 	 * <pre>
 	 * Tries to retrieve a post that needs converting, in regards to
 	 * config.aFileMask 
-	 * strQuery1 = ID of the last converted post, to exclude
+	 * strQuery1 = SQL String, contains "post_id = ID[ AND NOT post_id = ID ...]"
+	 * iQuery1 = Offset of the SELECT statement
 	 * 
 	 * oResultPostObject1 = post that needs converting 
 	 * bNoResult = true, when no post found

@@ -14,7 +14,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.1";
+	public String strVersion = "0.2";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -24,6 +24,7 @@ public class Config {
 	public String strDBPassword = "";
 	public String strDBName = "e621sync";
 	public int iNumWorkers = 1;
+	public int iConverterThreads = 1;
 	public int iNumDBThreads = 16;
 	public int iSyncThreadTimeout = 1000 * 60 * 60;
 	public TargetFormat eTargetFormat = TargetFormat.BPG;
@@ -129,6 +130,8 @@ public class Config {
 				iJPGQ = Integer.parseInt(strValue);
 			} else if (strData.startsWith("X265CFR:")) {
 				iHEVCCQP = Integer.parseInt(strValue);
+			} else if (strData.startsWith("CT#:")) {
+				iConverterThreads = Integer.parseInt(strValue);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -146,7 +149,8 @@ public class Config {
 		strDBUsername = oMain.textFieldDBUsername.getText();
 		strDBPassword = new String(oMain.passwordFieldDB.getPassword());
 		strDBName = oMain.textFieldDBName.getText();
-		
+		iConverterThreads = (Integer) oMain.spinnerConverterThreads.getValue();
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("ImageConv config file" + System.lineSeparator());
 		sb.append("ID:" + strAppID + System.lineSeparator());
@@ -165,6 +169,7 @@ public class Config {
 		sb.append("ALG:" + eTargetFormat + System.lineSeparator());
 		sb.append("JQ:" + iJPGQ + System.lineSeparator());
 		sb.append("X265CRF:" + iHEVCCQP + System.lineSeparator());
+		sb.append("CT#:" + iConverterThreads + System.lineSeparator());
 
 		try {
 			FileWriter fw = new FileWriter(oConfigFile);

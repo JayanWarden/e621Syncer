@@ -60,7 +60,11 @@ public class UIThread implements Runnable {
 	}
 
 	private void updateConverterThread() {
-		oMain.lblConverterStatus.setText(oMain.oConvert.strStatus);
+		String strText = "";
+		for(ConverterThread o : oMain.aConverters) {
+			strText = strText + o.strStatus + " | ";
+		}
+		oMain.lblConverterStatus.setText(strText);
 	}
 
 	private void updateSyncThread() {
