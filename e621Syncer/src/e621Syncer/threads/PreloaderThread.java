@@ -12,6 +12,7 @@ import e621Syncer.ViewerLogic;
 import e621Syncer.db.DBCommand;
 import e621Syncer.db.DBObject;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.LogType;
 import e621Syncer.logic.PostObject;
 
 public class PreloaderThread implements Runnable {
@@ -53,7 +54,7 @@ public class PreloaderThread implements Runnable {
 					checkSize();
 					preload();
 				} catch (Exception e) {
-					e.printStackTrace();
+					oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 
@@ -61,7 +62,7 @@ public class PreloaderThread implements Runnable {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 	}
@@ -80,7 +81,7 @@ public class PreloaderThread implements Runnable {
 					oViewerLogic.aQueueLeft.putLast(o);
 					bReachedEnd = false;
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		} else {
@@ -92,7 +93,7 @@ public class PreloaderThread implements Runnable {
 					oViewerLogic.aQueueRight.putLast(o);
 					bReachedEnd = false;
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		}
@@ -198,13 +199,13 @@ public class PreloaderThread implements Runnable {
 			try {
 				oViewerLogic.aQueueLeft.put(o);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		} else {
 			try {
 				oViewerLogic.aQueueRight.put(o);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 	}
@@ -223,8 +224,8 @@ public class PreloaderThread implements Runnable {
 					+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".bpg");
 			o.iFilesize = oSource.length();
 
-			String[] command = new String[] { "\"lib\\bpgdec.exe" + '"' + " -o \""
-					+ oTarget.getAbsolutePath() + "\" " + " \"" + oSource.getAbsolutePath() + "\"" };
+			String[] command = new String[] { "\"lib\\bpgdec.exe" + '"' + " -o \"" + oTarget.getAbsolutePath() + "\" "
+					+ " \"" + oSource.getAbsolutePath() + "\"" };
 
 			Runtime rt = Runtime.getRuntime();
 			try {
@@ -233,11 +234,11 @@ public class PreloaderThread implements Runnable {
 
 				String s = null;
 				while ((s = stdInput.readLine()) != null) {
-					System.out.println(strName + " loadBPG " + s);
+					oMain.oLog.log(strName + " loadBPG " + s, null, 5, LogType.NORMAL);
 				}
 				stdInput.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				return false;
 			}
 
@@ -249,7 +250,7 @@ public class PreloaderThread implements Runnable {
 			o.bImage = true;
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		return false;
 	}
@@ -272,7 +273,7 @@ public class PreloaderThread implements Runnable {
 			}
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		return false;
 	}
@@ -281,7 +282,7 @@ public class PreloaderThread implements Runnable {
 		try {
 			oViewerLogic.oMain.oDB.aQueue.putFirst(o);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 }

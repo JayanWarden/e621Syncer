@@ -20,6 +20,7 @@ import e621Syncer.View;
 import e621Syncer.db.DBCommand;
 import e621Syncer.db.DBObject;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.LogType;
 
 public class ConverterThread implements Runnable {
 	public String strName = "ConverterThread";
@@ -74,7 +75,7 @@ public class ConverterThread implements Runnable {
 				try {
 					Thread.sleep(1000 * 5);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		}
@@ -88,7 +89,7 @@ public class ConverterThread implements Runnable {
 	 * @param o - DBObject to convert
 	 */
 	private void convert(DBObject o) {
-		System.out.println(strName + " convert " + o.oResultPostObject1.id);
+		oMain.oLog.log(strName + " convert " + o.oResultPostObject1.id, null, 5, LogType.NORMAL);
 		boolean bSuccess = false;
 		File oSource = new File(oMain.oConf.strTempPath + "\\Downloaded\\" + o.oResultPostObject1.strMD5 + "."
 				+ o.oResultPostObject1.strExt);
@@ -119,18 +120,18 @@ public class ConverterThread implements Runnable {
 			try {
 				FileUtils.copyFile(oSource, oTarget);
 			} catch (IOException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 			bSuccess = extractFrame(oTarget, oThumbnailSource);
 			o.oResultPostObject1.strExtConv = o.oResultPostObject1.strExt;
 		} else {
-			System.out.println(strName + " convert failed on extension check?");
+			oMain.oLog.log(strName + " convert failed on extension check?", null, 4, LogType.NORMAL);
 		}
 
 		if (bSuccess) {
 			bSuccess = createThumbnail(oThumbnailSource);
 		} else {
-			System.out.println(strName + " convert failed conversion");
+			oMain.oLog.log(strName + " convert failed conversion", null, 4, LogType.NORMAL);
 		}
 
 		if (bSuccess) {
@@ -139,8 +140,9 @@ public class ConverterThread implements Runnable {
 			if (bSuccess) {
 				ack(o);
 			} else {
-				System.out.println(
-						strName + " convert failed on final move, set redownload for post " + o.oResultPostObject1.id);
+				oMain.oLog.log(
+						strName + " convert failed on final move, set redownload for post " + o.oResultPostObject1.id,
+						null, 4, LogType.NORMAL);
 				DBObject j = new DBObject();
 				j.command = DBCommand.REDOWNLOAD;
 				j.strQuery1 = o.oResultPostObject1.id + "";
@@ -150,8 +152,8 @@ public class ConverterThread implements Runnable {
 				oSource.delete();
 			}
 		} else {
-			System.out.println(strName + " convert failed on thumbnail creation, set redownload for post "
-					+ o.oResultPostObject1.id);
+			oMain.oLog.log(strName + " convert failed on thumbnail creation, set redownload for post "
+					+ o.oResultPostObject1.id, null, 4, LogType.NORMAL);
 			DBObject j = new DBObject();
 			j.command = DBCommand.REDOWNLOAD;
 			j.strQuery1 = o.oResultPostObject1.id + "";
@@ -176,7 +178,7 @@ public class ConverterThread implements Runnable {
 	 * @return boolean success?
 	 */
 	private boolean convertImage(File oSource, File oTarget) {
-		System.out.println(strName + " convertImage " + oSource.getName());
+		oMain.oLog.log(strName + " convertImage " + oSource.getName(), null, 5, LogType.NORMAL);
 		strStatus = "Converting image";
 		String[] command = new String[] {
 				"\"lib\\bpgenc.exe" + '"' + " -m " + oMain.oConf.iBPGSpeed + " -q " + oMain.oConf.iBPGQP + " -premul "
@@ -189,13 +191,13 @@ public class ConverterThread implements Runnable {
 
 			String s = null;
 			while ((s = stdInput.readLine()) != null) {
-				System.out.println(strName + " convertImage " + s);
+				oMain.oLog.log(strName + " convertVideo " + s, null, 5, LogType.NORMAL);
 			}
 			stdInput.close();
 
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			return false;
 		}
 	}
@@ -208,7 +210,7 @@ public class ConverterThread implements Runnable {
 	 * @return boolean success?
 	 */
 	private boolean moveFile(File oFile, boolean bThumb) {
-		System.out.println(strName + " moveFile");
+		oMain.oLog.log(strName + " moveFile", null, 4, LogType.NORMAL);
 		strStatus = "Moving results";
 		File oTarget = new File(oMain.oConf.strArchivePath + "\\" + oFile.getName().substring(0, 2) + "\\"
 				+ oFile.getName().substring(2, 4) + "\\" + oFile.getName());
@@ -235,7 +237,7 @@ public class ConverterThread implements Runnable {
 			}
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			return false;
 		}
 	}
@@ -247,7 +249,7 @@ public class ConverterThread implements Runnable {
 	 * @return boolean success?
 	 */
 	private boolean createThumbnail(File oFile) {
-		System.out.println(strName + " createThumbnail");
+		oMain.oLog.log(strName + " createThumbnail", null, 5, LogType.NORMAL);
 		strStatus = "Creating thumbnail";
 		try {
 			BufferedImage oOrig = ImageIO.read(oFile);
@@ -280,7 +282,7 @@ public class ConverterThread implements Runnable {
 
 					String s = null;
 					while ((s = stdInput.readLine()) != null) {
-						System.out.println(strName + " convertImage " + s);
+						oMain.oLog.log(strName + " createThumbnail " + s, null, 5, LogType.NORMAL);
 					}
 					stdInput.close();
 
@@ -288,11 +290,11 @@ public class ConverterThread implements Runnable {
 
 					return true;
 				} catch (IOException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		return false;
 	}
@@ -306,7 +308,7 @@ public class ConverterThread implements Runnable {
 	 * @return boolean success?
 	 */
 	private boolean convertVideo(File oSource, File oTarget, File oThumbnailTarget) {
-		System.out.println(strName + " convertVideo " + oSource.getName());
+		oMain.oLog.log(strName + " convertVideo " + oSource.getName(), null, 5, LogType.NORMAL);
 		strStatus = "Converting video";
 		String[] command = new String[] { "\"lib\\ffmpeg.exe" + '"' + " -i " + oSource.getAbsolutePath()
 				+ " -c:v libx265 -vtag hvc1 -c:a copy -preset veryslow -x265-params \"wpp=1:pmode=1:pme=1:ref=8:allow-non-conformance=1:rect=1:b-intra=1:max-merge=5:weightb=1:analyze-src-pics=1:b-adapt=2:bframes=16:bframe-bias=100:crf="
@@ -319,11 +321,11 @@ public class ConverterThread implements Runnable {
 
 			String s = null;
 			while ((s = stdInput.readLine()) != null) {
-				System.out.println(strName + " convertVideo " + s);
+				oMain.oLog.log(strName + " convertVideo " + s, null, 5, LogType.NORMAL);
 			}
 			stdInput.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			return false;
 		}
 
@@ -340,13 +342,13 @@ public class ConverterThread implements Runnable {
 
 					String s = null;
 					while ((s = stdInput.readLine()) != null) {
-						System.out.println(strName + " convertVideo " + s);
+						oMain.oLog.log(strName + " convertVideo " + s, null, 5, LogType.NORMAL);
 					}
 					stdInput.close();
 
 					return true;
 				} catch (IOException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					return false;
 				}
 			}
@@ -371,7 +373,7 @@ public class ConverterThread implements Runnable {
 				return true;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		return false;
 	}
@@ -420,7 +422,7 @@ public class ConverterThread implements Runnable {
 		try {
 			oMain.oDB.aQueue.putFirst(o);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 }

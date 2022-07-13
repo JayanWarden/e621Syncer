@@ -26,6 +26,7 @@ import e621Syncer.View;
 import e621Syncer.db.DBCommand;
 import e621Syncer.db.DBObject;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.LogType;
 
 public class DBSyncThread implements Runnable {
 	public String strName = "DBSyncThread";
@@ -45,7 +46,7 @@ public class DBSyncThread implements Runnable {
 	public DBSyncThread(View m) {
 		System.out.println(strName + " init");
 		oMain = m;
-		System.out.println(strName + " init complete");
+		oMain.oLog.log(strName + " init complete", null, 5, LogType.NORMAL);
 		strStatus = "initialized";
 	}
 
@@ -98,7 +99,7 @@ public class DBSyncThread implements Runnable {
 				strStatus = "Waiting for next update";
 				Thread.sleep(1000 * 60);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 	}
@@ -142,7 +143,7 @@ public class DBSyncThread implements Runnable {
 	 * @return boolean false when timeout not reached
 	 */
 	private boolean checkTimeout() {
-		System.out.println(strName + " checkTimeout");
+		oMain.oLog.log(strName + " checkTimeout", null, 5, LogType.NORMAL);
 		DBObject o = new DBObject();
 		o.command = DBCommand.ACCESS_SYSTEM;
 		o.type = DBCommand.SELECT;
@@ -157,10 +158,10 @@ public class DBSyncThread implements Runnable {
 
 		long lDBTime = Long.parseLong(o.strResult1);
 		if (System.currentTimeMillis() - lDBTime >= oMain.oConf.iSyncThreadTimeout) {
-			System.out.println(strName + " checkTimeout -> true");
+			oMain.oLog.log(strName + " checkTimeout -> true", null, 5, LogType.NORMAL);
 			return true;
 		} else {
-			System.out.println(strName + " checkTimeout -> false");
+			oMain.oLog.log(strName + " checkTimeout -> false", null, 5, LogType.NORMAL);
 			return false;
 		}
 	}
@@ -172,7 +173,7 @@ public class DBSyncThread implements Runnable {
 	 *         imported
 	 */
 	private boolean checkDumpDate() {
-		System.out.println(strName + " checkDumpDate");
+		oMain.oLog.log(strName + " checkDumpDate", null, 5, LogType.NORMAL);
 		int iDBDate = 0;
 		DBObject o = new DBObject();
 		o.command = DBCommand.ACCESS_SYSTEM;
@@ -183,15 +184,15 @@ public class DBSyncThread implements Runnable {
 
 		if (!o.bNoResult) {
 			iDBDate = Integer.parseInt(o.strResult1);
-			System.out.println(strName + " checkDumpDate DBDate=" + iDBDate);
+			oMain.oLog.log(strName + " checkDumpDate DBDate=" + iDBDate, null, 5, LogType.NORMAL);
 		}
 
 		ArrayList<String> result = null;
 		try {
 			result = downloadWebPage("https://e621.net/db_export/");
-			System.out.println(strName + " checkDumpDate webdata length " + result.size());
+			oMain.oLog.log(strName + " checkDumpDate webdata length " + result.size(), null, 5, LogType.NORMAL);
 		} catch (IOException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 
 		int iWebDate = 0;
@@ -211,7 +212,7 @@ public class DBSyncThread implements Runnable {
 		}
 
 		if (iWebDate > iDBDate) {
-			System.out.println(strName + " checkDumpDate -> true");
+			oMain.oLog.log(strName + " checkDumpDate -> true", null, 5, LogType.NORMAL);
 			o = new DBObject();
 			o.command = DBCommand.ACCESS_SYSTEM;
 			o.type = DBCommand.UPDATE;
@@ -220,7 +221,7 @@ public class DBSyncThread implements Runnable {
 			putInQueue(o);
 			return true;
 		}
-		System.out.println(strName + " checkDumpDate -> false");
+		oMain.oLog.log(strName + " checkDumpDate -> false", null, 5, LogType.NORMAL);
 		return false;
 	}
 
@@ -228,13 +229,13 @@ public class DBSyncThread implements Runnable {
 	 * Download all database dumps from e621
 	 */
 	private void download() {
-		System.out.println(strName + " download");
+		oMain.oLog.log(strName + " download", null, 5, LogType.NORMAL);
 		setResume("download");
 
 		String[] filenames = { "pools", "posts", "tag_aliases", "tag_implications", "tags", "wiki_pages" };
 
 		for (String strFilename : filenames) {
-			System.out.println(strName + " download " + strFilename);
+			oMain.oLog.log(strName + " download " + strFilename, null, 5, LogType.NORMAL);
 			File oFile = new File(oMain.oConf.strTempPath + "\\Temp\\" + strFilename + ".gz");
 			if (oFile.exists()) {
 				oFile.delete();
@@ -244,7 +245,7 @@ public class DBSyncThread implements Runnable {
 				Files.copy(new URL("https://e621.net/db_export/" + strFilename + "-" + strWebDate + ".csv.gz")
 						.openStream(), oFile.toPath());
 			} catch (IOException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 	}
@@ -253,14 +254,14 @@ public class DBSyncThread implements Runnable {
 	 * Unpack the gzipped downloaded dump files
 	 */
 	private void unzip() {
-		System.out.println(strName + " unzip");
+		oMain.oLog.log(strName + " unzip ", null, 5, LogType.NORMAL);
 		strStatus = "Unpacking databases";
 		setResume("unzip");
 
 		String[] filenames = { "pools", "posts", "tag_aliases", "tag_implications", "tags", "wiki_pages" };
 
 		for (String strFilename : filenames) {
-			System.out.println(strName + " unzip " + strFilename);
+			oMain.oLog.log(strName + " unzip " + strFilename, null, 5, LogType.NORMAL);
 			File oFile = new File(oMain.oConf.strTempPath + "\\Temp\\" + strFilename + ".csv");
 			if (oFile.exists()) {
 				oFile.delete();
@@ -275,10 +276,8 @@ public class DBSyncThread implements Runnable {
 				while ((len = gis.read(buffer)) > 0) {
 					fos.write(buffer, 0, len);
 				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 
@@ -286,7 +285,7 @@ public class DBSyncThread implements Runnable {
 			try {
 				Files.delete(Paths.get(oMain.oConf.strTempPath + "\\Temp\\" + strFilename + ".gz"));
 			} catch (IOException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 	}
@@ -297,7 +296,7 @@ public class DBSyncThread implements Runnable {
 	 * @param strDB - String which table are we working on?
 	 */
 	private void importGeneral(String strDB) {
-		System.out.println(strName + " importGeneral " + strDB);
+		oMain.oLog.log(strName + " importGeneral " + strDB, null, 5, LogType.NORMAL);
 		setResume(strDB);
 
 		File oFile = null;
@@ -335,12 +334,13 @@ public class DBSyncThread implements Runnable {
 		try (BufferedReader brTest = new BufferedReader(new FileReader(oFile))) {
 			text = brTest.readLine();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			oMain.oLog.log(null, e1, 0, LogType.EXCEPTION);
 		}
 		if (!text.equals(strHeader)) {
-			System.out.println(strName + " importGeneral " + strDB + " HEADER DIFFERENT. -> return");
-			System.out.println(strName + " Expected: " + strHeader);
-			System.out.println(strName + " Got: " + text);
+			oMain.oLog.log(strName + " importGeneral " + strDB + " HEADER DIFFERENT. -> return", null, 1,
+					LogType.NORMAL);
+			oMain.oLog.log(strName + " Expected: " + strHeader, null, 1, LogType.NORMAL);
+			oMain.oLog.log(strName + " Got: " + text, null, 1, LogType.NORMAL);
 			return;
 		}
 
@@ -368,7 +368,8 @@ public class DBSyncThread implements Runnable {
 
 					if (System.currentTimeMillis() - lThrottleMessage > 1000) {
 						lThrottleMessage = System.currentTimeMillis();
-						System.out.println(strName + " importGeneral throttled, done " + iCounter + "/" + iLineCount);
+						oMain.oLog.log(strName + " importGeneral throttled, done " + iCounter + "/" + iLineCount, null,
+								5, LogType.NORMAL);
 						strStatus = "Importing " + strDB.replace("import", "") + " " + iCounter + "/" + iLineCount;
 					}
 				}
@@ -376,14 +377,10 @@ public class DBSyncThread implements Runnable {
 				putInQueue(o);
 				iCounter++;
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (CsvValidationException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
-		System.out.println(strName + " importGeneral" + strDB + " finished populating DB queue");
+		oMain.oLog.log(strName + " importGeneral" + strDB + " finished populating DB queue", null, 5, LogType.NORMAL);
 	}
 
 	/**
@@ -424,8 +421,7 @@ public class DBSyncThread implements Runnable {
 	 */
 	@SuppressWarnings("unused")
 	private int countEntries(File oFile) {
-		System.out.println(strName + " countEntries " + oFile.getName());
-
+		oMain.oLog.log(strName + " countEntries " + oFile.getName(), null, 5, LogType.NORMAL);
 		int iResult = 0;
 		RFC4180Parser rfc4180Parser = new RFC4180ParserBuilder().build();
 		try (CSVReader reader = new CSVReaderBuilder(new FileReader(oFile)).withCSVParser(rfc4180Parser).build()) {
@@ -435,14 +431,10 @@ public class DBSyncThread implements Runnable {
 				strStatus = "Counting database entries for " + oFile.getName() + ", currently " + iResult;
 				iResult++;
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (CsvValidationException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
-		System.out.println(strName + " countEntries " + oFile.getName() + " has " + iResult + " lines");
+		oMain.oLog.log(strName + " countEntries " + oFile.getName() + " has " + iResult + " lines", null, 5, LogType.NORMAL);
 		System.gc();
 		System.gc();
 		return iResult;
@@ -452,7 +444,7 @@ public class DBSyncThread implements Runnable {
 		try {
 			oMain.oDB.aQueue.put(o);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 

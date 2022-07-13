@@ -16,6 +16,7 @@ import e621Syncer.View;
 import e621Syncer.db.DBCommand;
 import e621Syncer.db.DBObject;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.LogType;
 
 public class DownloadThread implements Runnable {
 	public String strName = "DownloadThread";
@@ -59,7 +60,7 @@ public class DownloadThread implements Runnable {
 				try {
 					Thread.sleep(1000 * 5);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		}
@@ -73,7 +74,7 @@ public class DownloadThread implements Runnable {
 	 * @param o - DBObject
 	 */
 	private void download(DBObject o) {
-		System.out.println(strName + " download post " + o.iResult2);
+		oMain.oLog.log(strName + " download post " + o.iResult2, null, 5, LogType.NORMAL);
 		strStatus = "Downloading post " + o.iResult2;
 		waitLimit();
 
@@ -86,10 +87,10 @@ public class DownloadThread implements Runnable {
 		try {
 			saveFile(new URL("https://static1.e621.net/data/" + o.oResultPostObject1.strMD5.substring(0, 2) + "/"
 					+ o.oResultPostObject1.strMD5.substring(2, 4) + "/" + o.oResultPostObject1.strMD5 + "."
-					+ o.oResultPostObject1.strExt), oFile.getAbsolutePath(), oMain.oConf.strUserAgent);
+					+ o.oResultPostObject1.strExt), oFile.getAbsolutePath(), oMain.oConf.strUserAgent, oMain);
 			ack(o);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 
@@ -99,9 +100,10 @@ public class DownloadThread implements Runnable {
 	 * @param imgURL      - URL path to file
 	 * @param imgSavePath - String absolute path to save to
 	 * @param ua          - String user agent, loaded from config
+	 * @param oMain       - View main object handle
 	 * @return - boolean success?
 	 */
-	public static boolean saveFile(URL imgURL, String imgSavePath, String ua) {
+	public static boolean saveFile(URL imgURL, String imgSavePath, String ua, View oMain) {
 		boolean isSucceed = true;
 
 		CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -119,6 +121,7 @@ public class DownloadThread implements Runnable {
 
 		} catch (IOException e) {
 			isSucceed = false;
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 
 		httpGet.releaseConnection();
@@ -135,7 +138,7 @@ public class DownloadThread implements Runnable {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 		lTimestampLimiter = System.currentTimeMillis();
@@ -158,7 +161,7 @@ public class DownloadThread implements Runnable {
 		try {
 			oMain.oDB.aQueue.putFirst(o);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 }

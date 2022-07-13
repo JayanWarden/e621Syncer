@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -25,6 +26,7 @@ import javax.swing.SwingUtilities;
 import e621Syncer.db.DBCommand;
 import e621Syncer.db.DBObject;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.LogType;
 import e621Syncer.logic.PoolObject;
 import e621Syncer.logic.PostObject;
 import e621Syncer.logic.TagObject;
@@ -114,7 +116,7 @@ public class ViewerLogic {
 					strStatusPools = "Finished";
 				} catch (Exception e) {
 					strStatusPools = "Process crashed";
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		};
@@ -326,7 +328,7 @@ public class ViewerLogic {
 
 						label.addMouseListener(new MouseAdapter() {
 							public void mousePressed(MouseEvent e) {
-								System.out.println("Clicked on: " + o.oResultPostObject1.id);
+								oMain.oLog.log("Clicked on: " + o.oResultPostObject1.id, null, 5, LogType.NORMAL);
 								oMain.oUILogic.loadPost(o.oResultPostObject1);
 							}
 						});
@@ -340,7 +342,7 @@ public class ViewerLogic {
 					try {
 						Thread.sleep(0);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 				}
 			}
@@ -379,7 +381,7 @@ public class ViewerLogic {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 
@@ -404,7 +406,7 @@ public class ViewerLogic {
 
 				label.addMouseListener(new MouseAdapter() {
 					public void mousePressed(MouseEvent e) {
-						System.out.println("Clicked on: " + o.oResultPostObject1.id);
+						oMain.oLog.log("Clicked on: " + o.oResultPostObject1.id, null, 5, LogType.NORMAL);
 						oMain.oUILogic.loadPost(o.oResultPostObject1);
 					}
 				});
@@ -412,7 +414,7 @@ public class ViewerLogic {
 				oMain.panelMainWindow.add(label);
 				oMain.panelMainWindow.repaint();
 			} catch (Exception e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 		oMain.frmE.repaint();
@@ -492,7 +494,7 @@ public class ViewerLogic {
 						aQueueLeft.putFirst(oCurrentPost);
 						loadPost(aQueueRight.take());
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 				}
 			}
@@ -645,7 +647,7 @@ public class ViewerLogic {
 	private void loadSWF(PostObject o) {
 		File oSource = new File(oMain.oConf.strArchivePath + "\\" + o.strMD5.substring(0, 2) + "\\"
 				+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".swf_");
-		System.out.println(strName + " loadSWF " + oSource.getAbsolutePath());
+		oMain.oLog.log(strName + " loadSWF " + oSource.getAbsolutePath(), null, 5, LogType.NORMAL);
 		if (oSource.exists()) {
 			JLabel label = new JLabel("NO FLASH PLUGIN AVAILABLE");
 			oMain.panelMainWindow.add(label);

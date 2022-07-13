@@ -14,7 +14,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.2.1";
+	public String strVersion = "0.3";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -27,12 +27,15 @@ public class Config {
 	public int iConverterThreads = 1;
 	public int iNumDBThreads = 16;
 	public int iSyncThreadTimeout = 1000 * 60 * 60;
-	public TargetFormat eTargetFormat = TargetFormat.BPG;
 
 	public int iBPGQP = 26;
 	public int iBPGSpeed = 9;
 	public int iJPGQ = 95;
 	public int iHEVCCQP = 25;
+
+	public int iLogVerbosity = 5;
+	public boolean bLogMessagesToConsole = false;
+	public boolean bLogExceptionsToConsole = true;
 
 	public View oMain;
 
@@ -64,6 +67,8 @@ public class Config {
 		oMain.textFieldArchivePath.setText(strArchivePath);
 		oMain.textFieldTempPath.setText(strTempPath);
 		oMain.spinnerConverterThreads.setValue(iConverterThreads);
+		oMain.chckbxLogExceptionsToConsole.setSelected(bLogExceptionsToConsole);
+		oMain.chckbxLogMessagesToConsole.setSelected(bLogMessagesToConsole);
 
 		if (strAppID == null) {
 			strAppID = generateRandomString(16);
@@ -125,14 +130,18 @@ public class Config {
 				iBPGQP = Integer.parseInt(strValue);
 			} else if (strData.startsWith("BS:")) {
 				iBPGSpeed = Integer.parseInt(strValue);
-			} else if (strData.startsWith("ALG:")) {
-				eTargetFormat = TargetFormat.valueOf(strValue);
 			} else if (strData.startsWith("JQ:")) {
 				iJPGQ = Integer.parseInt(strValue);
 			} else if (strData.startsWith("X265CFR:")) {
 				iHEVCCQP = Integer.parseInt(strValue);
 			} else if (strData.startsWith("CT#:")) {
 				iConverterThreads = Integer.parseInt(strValue);
+			} else if (strData.startsWith("LGV:")) {
+				iLogVerbosity = Integer.parseInt(strValue);
+			} else if (strData.startsWith("LGE:")) {
+				bLogExceptionsToConsole = strValue.equals("T");
+			} else if (strData.startsWith("LGM:")) {
+				bLogMessagesToConsole = strValue.equals("T");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -151,6 +160,8 @@ public class Config {
 		strDBPassword = new String(oMain.passwordFieldDB.getPassword());
 		strDBName = oMain.textFieldDBName.getText();
 		iConverterThreads = (Integer) oMain.spinnerConverterThreads.getValue();
+		bLogExceptionsToConsole = oMain.chckbxLogExceptionsToConsole.isSelected();
+		bLogMessagesToConsole = oMain.chckbxLogMessagesToConsole.isSelected();
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("ImageConv config file" + System.lineSeparator());
@@ -167,10 +178,12 @@ public class Config {
 		sb.append("STX:" + iSyncThreadTimeout + System.lineSeparator());
 		sb.append("BQ:" + iBPGQP + System.lineSeparator());
 		sb.append("BS:" + iBPGSpeed + System.lineSeparator());
-		sb.append("ALG:" + eTargetFormat + System.lineSeparator());
 		sb.append("JQ:" + iJPGQ + System.lineSeparator());
 		sb.append("X265CRF:" + iHEVCCQP + System.lineSeparator());
 		sb.append("CT#:" + iConverterThreads + System.lineSeparator());
+		sb.append("LGV:" + iLogVerbosity + System.lineSeparator());
+		sb.append("LGE:" + (bLogExceptionsToConsole ? "T" : "F") + System.lineSeparator());
+		sb.append("LGM:" + (bLogMessagesToConsole ? "T" : "F") + System.lineSeparator());
 
 		try {
 			FileWriter fw = new FileWriter(oConfigFile);

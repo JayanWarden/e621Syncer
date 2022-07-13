@@ -2,6 +2,7 @@ package e621Syncer.threads;
 
 import e621Syncer.View;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.LogType;
 
 public class UIThread implements Runnable {
 	public String strName = "UIThread";
@@ -48,7 +49,7 @@ public class UIThread implements Runnable {
 				try {
 					Thread.sleep(iFrametimeMS - (currentTime - lLastFrame));
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		}

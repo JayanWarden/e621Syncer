@@ -16,6 +16,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import e621Syncer.View;
+import e621Syncer.logic.LogType;
 import e621Syncer.logic.PoolObject;
 import e621Syncer.logic.PostObject;
 import e621Syncer.logic.TagObject;
@@ -64,7 +65,7 @@ public class Database implements Runnable {
 		ds.setMaximumPoolSize(200);
 		ds.setMinimumIdle(10);
 		ds.setIdleTimeout(1000);
-		System.out.println("HikariPool init size " + ds.getMaximumPoolSize());
+		oMain.oLog.log("HikariPool init size " + ds.getMaximumPoolSize(), null, 5, LogType.NORMAL);
 	}
 
 	/**
@@ -78,7 +79,7 @@ public class Database implements Runnable {
 			try {
 				o = aQueue.take();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 			if (o != null) {
 				switch (o.command) {
@@ -152,7 +153,7 @@ public class Database implements Runnable {
 				return;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		o.bFinished = true;
 	}
@@ -174,7 +175,8 @@ public class Database implements Runnable {
 			}
 			aTrackedThreads = temp;
 			if (bWait) {
-				System.out.println(strName + " kill received, waiting for " + aTrackedThreads.size() + " threads");
+				oMain.oLog.log(strName + " kill received, waiting for " + aTrackedThreads.size() + " threads", null, 0,
+						LogType.NORMAL);
 				loop = true;
 				if (aTrackedThreads.size() == 0) {
 					loop = false;
@@ -183,7 +185,7 @@ public class Database implements Runnable {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 			}
 		}
@@ -230,7 +232,7 @@ public class Database implements Runnable {
 						ps.setString(4, o.aStrQuery1[3]);
 						ps.executeUpdate();
 					} catch (Exception e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 					iWorkers.decrementAndGet();
 					o.bFinished = true;
@@ -264,7 +266,7 @@ public class Database implements Runnable {
 						ps.setString(4, o.aStrQuery1[4]);
 						ps.executeUpdate();
 					} catch (Exception e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 					iWorkers.decrementAndGet();
 					o.bFinished = true;
@@ -296,8 +298,8 @@ public class Database implements Runnable {
 						ResultSet rs = ps.executeQuery();
 						if (rs.next()) {
 							if (!rs.getString("tag_string").equals(o.aStrQuery1[8])) {
-								deleteTagmap(o, con);
-								createTagmap(o, con);
+								deleteTagmap(o, con, oMain);
+								createTagmap(o, con, oMain);
 							}
 							if (!rs.getString("source").equals(o.aStrQuery1[4])
 									|| !rs.getString("score").equals(o.aStrQuery1[23])
@@ -329,8 +331,8 @@ public class Database implements Runnable {
 								ps2.setString(10, o.aStrQuery1[17]);
 								ps2.setString(11, o.aStrQuery1[20]);
 								ps2.executeUpdate();
-								deleteTagmap(o, con);
-								createTagmap(o, con);
+								deleteTagmap(o, con, oMain);
+								createTagmap(o, con, oMain);
 							}
 
 							if (o.aStrQuery1[20].equals("f")) {
@@ -342,7 +344,7 @@ public class Database implements Runnable {
 							}
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 					iWorkers.decrementAndGet();
 					o.bFinished = true;
@@ -351,17 +353,19 @@ public class Database implements Runnable {
 			t.start();
 			aTrackedThreads.add(t);
 		} else {
-			System.out.println(strName + " syncInsertPosts incorrect num arguments, " + o.aStrQuery1.length);
+			oMain.oLog.log(strName + " syncInsertPosts incorrect num arguments, " + o.aStrQuery1.length, null, 1,
+					LogType.NORMAL);
 		}
 	}
 
 	/**
 	 * Create or update entries in the "tagmap" table.
 	 * 
-	 * @param o   - DBObject
-	 * @param con - Connection (HikariCP Connection object recycling)
+	 * @param o     - DBObject
+	 * @param con   - Connection (HikariCP Connection object recycling)
+	 * @param oMain - View handle for main object
 	 */
-	private static void createTagmap(DBObject o, Connection con) {
+	private static void createTagmap(DBObject o, Connection con, View oMain) {
 		String strTags = o.aStrQuery1[8];
 		String[] aTags = strTags.split("\\s+");
 		try {
@@ -380,26 +384,27 @@ public class Database implements Runnable {
 					ps.setString(2, iTagID + "");
 					ps.executeUpdate();
 				} else {
-					System.out.println("Database createTagmap could not find tag " + strTag);
+					oMain.oLog.log("Database createTagmap could not find tag " + strTag, null, 4, LogType.NORMAL);
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 
 	/**
 	 * Delete all objects from the tagmap that map to the given DBObject
 	 * 
-	 * @param o   - DBObject
-	 * @param con - Connection (HikariCP Connection object recycling)
+	 * @param o     - DBObject
+	 * @param con   - Connection (HikariCP Connection object recycling)
+	 * @param oMain - View handle for main object
 	 */
-	private static void deleteTagmap(DBObject o, Connection con) {
+	private static void deleteTagmap(DBObject o, Connection con, View oMain) {
 		try (PreparedStatement ps = con.prepareStatement("DELETE FROM tagmap WHERE post_id = ?");) {
 			ps.setString(1, o.aStrQuery1[0]);
 			ps.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 
@@ -422,7 +427,7 @@ public class Database implements Runnable {
 						Date date = format.parse(o.aStrQuery1[3].substring(0, o.aStrQuery1[3].lastIndexOf('.')));
 						timestamp = date.getTime();
 					} catch (ParseException e1) {
-						e1.printStackTrace();
+						oMain.oLog.log(null, e1, 0, LogType.EXCEPTION);
 					}
 					try (Connection con = ds.getConnection();) {
 						PreparedStatement ps = con.prepareStatement("SELECT * FROM pools WHERE id = ?");
@@ -430,8 +435,8 @@ public class Database implements Runnable {
 						ResultSet rs = ps.executeQuery();
 						if (rs.next()) {
 							if (!rs.getString("post_ids").equals(o.aStrQuery1[8])) {
-								deletePoolmap(o, con);
-								createPoolmap(o, con);
+								deletePoolmap(o, con, oMain);
+								createPoolmap(o, con, oMain);
 							}
 							if (!rs.getString("updated_at").equals(o.aStrQuery1[3])
 									|| !rs.getString("description").equals(o.aStrQuery1[5])) {
@@ -452,11 +457,11 @@ public class Database implements Runnable {
 							ps.setString(4, o.aStrQuery1[5]);
 							ps.setString(5, o.aStrQuery1[8]);
 							ps.executeUpdate();
-							createPoolmap(o, con);
+							createPoolmap(o, con, oMain);
 						}
 						ps.close();
 					} catch (Exception e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 					iWorkers.decrementAndGet();
 					o.bFinished = true;
@@ -465,17 +470,19 @@ public class Database implements Runnable {
 			t.start();
 			aTrackedThreads.add(t);
 		} else {
-			System.out.println(strName + " syncInsertPools incorrect num arguments, " + o.aStrQuery1.length);
+			oMain.oLog.log(strName + " syncInsertPools incorrect num arguments, " + o.aStrQuery1.length, null, 1,
+					LogType.NORMAL);
 		}
 	}
 
 	/**
 	 * Create or update entries in the "poolmap" table.
 	 * 
-	 * @param o   - DBObject
-	 * @param con - Connection (HikariCP Connection object recycling)
+	 * @param o     - DBObject
+	 * @param con   - Connection (HikariCP Connection object recycling)
+	 * @param oMain - View handle for main object
 	 */
-	private static void createPoolmap(DBObject o, Connection con) {
+	private static void createPoolmap(DBObject o, Connection con, View oMain) {
 		String strPosts = o.aStrQuery1[8];
 		strPosts = strPosts.replace("{", "");
 		strPosts = strPosts.replace("}", "");
@@ -490,10 +497,10 @@ public class Database implements Runnable {
 						ps.setString(2, iPostID + "");
 						ps.executeUpdate();
 					} catch (Exception e) {
-						e.printStackTrace();
+						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
 				} else {
-					System.out.println("Database createPoolmap could not find post " + strPost);
+					oMain.oLog.log("Database createPoolmap could not find post " + strPost, null, 1, LogType.NORMAL);
 				}
 			}
 		}
@@ -502,15 +509,16 @@ public class Database implements Runnable {
 	/**
 	 * Delete all objects from the poolmap that map to the given DBObject
 	 * 
-	 * @param o   - DBObject
-	 * @param con - Connection (HikariCP Connection object recycling)
+	 * @param o     - DBObject
+	 * @param con   - Connection (HikariCP Connection object recycling)
+	 * @param oMain - View handle for main thread
 	 */
-	private static void deletePoolmap(DBObject o, Connection con) {
+	private static void deletePoolmap(DBObject o, Connection con, View oMain) {
 		try (PreparedStatement ps = con.prepareStatement("DELETE FROM poolmap WHERE pool_id = ?");) {
 			ps.setString(1, o.aStrQuery1[0]);
 			ps.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 	}
 
@@ -537,7 +545,7 @@ public class Database implements Runnable {
 
 						DBObject temp = new DBObject();
 						temp.strQuery1 = o.iResult2 + "";
-						PostObject p = getPostStatic(temp, con);
+						PostObject p = getPostStatic(temp, con, oMain);
 						if (p != null) {
 							o.oResultPostObject1 = p;
 						} else {
@@ -548,7 +556,7 @@ public class Database implements Runnable {
 					}
 					ps.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -572,14 +580,14 @@ public class Database implements Runnable {
 				iWorkers.incrementAndGet();
 
 				try (Connection con = ds.getConnection();) {
-					PostObject p = getPostStatic(o, con);
+					PostObject p = getPostStatic(o, con, oMain);
 					if (p != null) {
 						o.oResultPostObject1 = p;
 					} else {
 						o.bNoResult = true;
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -607,7 +615,7 @@ public class Database implements Runnable {
 					ResultSet rs = ps.executeQuery();
 					if (rs.next()) {
 						o.strQuery1 = rs.getInt("id") + "";
-						PostObject p = getPostStatic(o, con);
+						PostObject p = getPostStatic(o, con, oMain);
 						if (p != null) {
 							o.oResultPostObject1 = p;
 						} else {
@@ -616,7 +624,7 @@ public class Database implements Runnable {
 					}
 				} catch (Exception e) {
 					o.bNoResult = true;
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -630,11 +638,12 @@ public class Database implements Runnable {
 	/**
 	 * Last step in the Post Loading workflow.
 	 * 
-	 * @param o   - DBObject
-	 * @param con - Connection (HikariDB connection recycling)
+	 * @param o     - DBObject
+	 * @param con   - Connection (HikariDB connection recycling)
+	 * @param oMain - View handle for main object
 	 * @return PostObject
 	 */
-	private static PostObject getPostStatic(DBObject o, Connection con) {
+	private static PostObject getPostStatic(DBObject o, Connection con, View oMain) {
 		try {
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM posts WHERE id = ?");
 			ps.setString(1, o.strQuery1);
@@ -662,8 +671,8 @@ public class Database implements Runnable {
 						if (rs2.next()) {
 							p.strExtConv = rs2.getString("rename_ext");
 						} else {
-							System.out
-									.println(strName + " getPostStatic failed getting rename_ext for ID " + iRenameExt);
+							oMain.oLog.log(strName + " getPostStatic failed getting rename_ext for ID " + iRenameExt,
+									null, 1, LogType.NORMAL);
 							p.strExtConv = "FALSE";
 						}
 						ps2.close();
@@ -676,7 +685,7 @@ public class Database implements Runnable {
 
 				String strTags = rs.getString("tag_string");
 				String[] aTags = strTags.split("\\s+");
-				p.aTags = parseTags(o, con, aTags);
+				p.aTags = parseTags(o, con, aTags, oMain);
 
 				p.bThumb = rs.getBoolean("thumbnail");
 
@@ -684,7 +693,7 @@ public class Database implements Runnable {
 				return p;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		return null;
 	}
@@ -695,9 +704,10 @@ public class Database implements Runnable {
 	 * @param o     - DBObject
 	 * @param con   - Connection (HikariCP connection recycling)
 	 * @param aTags - String[] with tags to parse
+	 * @param oMain - View handle for main object
 	 * @return TagObject[]
 	 */
-	public static TagObject[] parseTags(DBObject o, Connection con, String[] aTags) {
+	public static TagObject[] parseTags(DBObject o, Connection con, String[] aTags, View oMain) {
 		ArrayList<TagObject> aTagObjects = new ArrayList<TagObject>();
 		for (String strTag : aTags) {
 			try {
@@ -714,7 +724,7 @@ public class Database implements Runnable {
 					aTagObjects.add(t);
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 		TagObject[] aResult = new TagObject[aTagObjects.size()];
@@ -751,7 +761,7 @@ public class Database implements Runnable {
 
 					ps.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -780,7 +790,7 @@ public class Database implements Runnable {
 					ResultSet rs = ps.executeQuery();
 					if (rs.next()) {
 						o.strQuery1 = rs.getInt("post_id") + "";
-						o.oResultPostObject1 = getPostStatic(o, con);
+						o.oResultPostObject1 = getPostStatic(o, con, oMain);
 						if (o.oResultPostObject1 == null) {
 							o.bNoResult = true;
 						} else {
@@ -791,7 +801,7 @@ public class Database implements Runnable {
 					}
 					ps.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -836,8 +846,6 @@ public class Database implements Runnable {
 						rs = ps.executeQuery();
 						if (rs.next()) {
 							iRenameExt = rs.getInt("id");
-						} else {
-							System.out.println(strName + " ackConvert ?????????");
 						}
 					}
 
@@ -849,7 +857,7 @@ public class Database implements Runnable {
 
 					ps.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -890,7 +898,7 @@ public class Database implements Runnable {
 					}
 				} catch (SQLException e) {
 					o.bNoResult = true;
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -932,7 +940,7 @@ public class Database implements Runnable {
 
 					ps.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -985,7 +993,7 @@ public class Database implements Runnable {
 
 					ps.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -1037,7 +1045,7 @@ public class Database implements Runnable {
 
 					ps.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
 
 				iWorkers.decrementAndGet();
@@ -1057,7 +1065,7 @@ public class Database implements Runnable {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
 	}

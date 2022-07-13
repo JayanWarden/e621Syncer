@@ -15,6 +15,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -43,6 +44,7 @@ import e621Syncer.logic.TagObject;
 import e621Syncer.threads.ConverterThread;
 import e621Syncer.threads.DBSyncThread;
 import e621Syncer.threads.DownloadThread;
+import e621Syncer.threads.LoggerThread;
 import e621Syncer.threads.UIThread;
 import net.miginfocom.swing.MigLayout;
 
@@ -57,6 +59,7 @@ public class View {
 	public Config oConf;
 	public DBSyncThread oDBS;
 	public ViewerLogic oUILogic;
+	public LoggerThread oLog;
 
 	public JTabbedPane tabbedPane;
 	public JLabel lblDownladerStatus, lblSyncThread, lblConverterStatus, lblPostSize, lblPostExtension, lblScore,
@@ -65,7 +68,7 @@ public class View {
 	private JLabel lblNewLabel, lblNewLabel_1, lblNewLabel_2, lblNewLabel_3, lblNewLabel_4, lblNewLabel_5,
 			lblNewLabel_6, lblNewLabel_7, lblNewLabel_8, lblNewLabel_9, lblNewLabel_11, lblNewLabel_10, lblNewLabel_12,
 			lblNewLabel_13, lblNewLabel_14, lblNewLabel_15, lblNewLabel_16, lblNewLabel_17, lblNewLabel_18,
-			lblNewLabel_19, lblNewLabel_20, lblNewLabel_21, lblNewLabel_22;
+			lblNewLabel_19, lblNewLabel_20, lblNewLabel_21, lblNewLabel_22, lblNewLabel_24, lblNewLabel_23;
 	public JPanel panelViewer, panelButtonBar, panelNorth, panelInfos, panelSidebar, panelMainWindow, panelPoolInfo,
 			panelPoolButtons, panelPools;
 	@SuppressWarnings("rawtypes")
@@ -75,13 +78,18 @@ public class View {
 	public JPasswordField passwordFieldDB;
 	public JButton btnLeft, btnRight, btnNewButton, btnNewButton_1;
 	public JSpinner spinnerConverterThreads;
+	public JCheckBox chckbxLogMessagesToConsole, chckbxLogExceptionsToConsole;
 
 	public DefaultListModel<TagObject> modelTags = new DefaultListModel<>();
 	public JList<TagObject> listSidebar;
 	public DefaultListModel<String> modelPools = new DefaultListModel<>();
 	public JList<String> listPools;
+	public DefaultListModel<String> modelLog = new DefaultListModel<>();
+	public JList<String> listLog;
+	public DefaultListModel<String> modelException = new DefaultListModel<>();
+	public JList<String> listException;
 
-	private JScrollPane listSidebarScrollPane, listPoolsScrollPane;
+	private JScrollPane listSidebarScrollPane, listPoolsScrollPane, scrollPaneLog, scrollPaneExceptions;
 
 	/**
 	 * Launch the application.
@@ -116,7 +124,7 @@ public class View {
 		frmE = new JFrame();
 		frmE.setBackground(Color.DARK_GRAY);
 		frmE.setTitle("e621Syncer");
-		frmE.setBounds(100, 100, 1351, 840);
+		frmE.setBounds(100, 100, 1280, 720);
 		frmE.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -145,113 +153,6 @@ public class View {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBackground(Color.GRAY);
 		frmE.getContentPane().add(tabbedPane, BorderLayout.CENTER);
-
-		JPanel panelSettings = new JPanel();
-		panelSettings.setBackground(Color.GRAY);
-		tabbedPane.addTab("Settings", null, panelSettings, null);
-		panelSettings.setLayout(new MigLayout("", "[][][][]", "[][][][][][][][][][][][]"));
-
-		btnDownloader = new JButton("Start Downloader");
-		btnDownloader.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				toggleDownloadThread();
-			}
-		});
-		panelSettings.add(btnDownloader, "cell 0 0");
-
-		lblDownladerStatus = new JLabel("~~~~");
-		panelSettings.add(lblDownladerStatus, "cell 1 0");
-
-		btnConverter = new JButton("Start Converter");
-		btnConverter.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				toggleConverterThread();
-			}
-		});
-		panelSettings.add(btnConverter, "cell 0 1");
-
-		lblNewLabel = new JLabel("WebSync Status:");
-		panelSettings.add(lblNewLabel, "cell 0 2");
-
-		lblSyncThread = new JLabel("~~~~");
-		panelSettings.add(lblSyncThread, "cell 1 2");
-
-		lblNewLabel_12 = new JLabel("Database Settings");
-		panelSettings.add(lblNewLabel_12, "cell 0 3");
-
-		lblNewLabel_13 = new JLabel("IP / Hostname:");
-		panelSettings.add(lblNewLabel_13, "cell 0 4,alignx trailing");
-
-		textFieldDBHostname = new JTextField();
-		panelSettings.add(textFieldDBHostname, "flowx,cell 1 4,alignx left");
-		textFieldDBHostname.setColumns(16);
-
-		lblNewLabel_14 = new JLabel("Port:");
-		panelSettings.add(lblNewLabel_14, "cell 2 4,alignx right");
-
-		textFieldDBPort = new JTextField();
-		panelSettings.add(textFieldDBPort, "cell 3 4,alignx left");
-		textFieldDBPort.setColumns(5);
-
-		lblNewLabel_16 = new JLabel("Database Name:");
-		panelSettings.add(lblNewLabel_16, "cell 0 5,alignx right");
-
-		textFieldDBName = new JTextField();
-		panelSettings.add(textFieldDBName, "cell 1 5,alignx left");
-		textFieldDBName.setColumns(16);
-
-		lblNewLabel_15 = new JLabel("Username:");
-		lblNewLabel_15.setHorizontalAlignment(SwingConstants.LEFT);
-		panelSettings.add(lblNewLabel_15, "cell 0 6,alignx trailing");
-
-		textFieldDBUsername = new JTextField();
-		panelSettings.add(textFieldDBUsername, "flowx,cell 1 6,alignx left");
-		textFieldDBUsername.setColumns(16);
-
-		lblNewLabel_17 = new JLabel("Password:");
-		panelSettings.add(lblNewLabel_17, "cell 2 6,alignx right");
-
-		passwordFieldDB = new JPasswordField();
-		passwordFieldDB.setColumns(16);
-		panelSettings.add(passwordFieldDB, "cell 3 6,alignx left");
-
-		lblNewLabel_19 = new JLabel("Temp Path:");
-		panelSettings.add(lblNewLabel_19, "cell 0 7,alignx trailing");
-
-		textFieldTempPath = new JTextField();
-		panelSettings.add(textFieldTempPath, "cell 1 7,alignx left");
-		textFieldTempPath.setColumns(32);
-
-		lblNewLabel_20 = new JLabel("Archive Path:");
-		panelSettings.add(lblNewLabel_20, "cell 0 8,alignx trailing");
-
-		textFieldArchivePath = new JTextField();
-		panelSettings.add(textFieldArchivePath, "cell 1 8,alignx left");
-		textFieldArchivePath.setColumns(32);
-
-		lblConverterStatus = new JLabel("~~~~");
-		panelSettings.add(lblConverterStatus, "cell 1 1 3 1");
-
-		btnSaveSettings = new JButton("Save Settings");
-		btnSaveSettings.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveSettings();
-			}
-		});
-
-		lblNewLabel_22 = new JLabel("Misc Settings");
-		panelSettings.add(lblNewLabel_22, "cell 0 9");
-
-		lblNewLabel_21 = new JLabel("Converter thread count:");
-		panelSettings.add(lblNewLabel_21, "cell 0 10,alignx trailing");
-
-		spinnerConverterThreads = new JSpinner();
-		spinnerConverterThreads.setModel(new SpinnerNumberModel(1, 1, 8, 1));
-		panelSettings.add(spinnerConverterThreads, "cell 1 10");
-		panelSettings.add(btnSaveSettings, "cell 0 11");
-
-		lblNewLabel_18 = new JLabel("Saving settings requires a restart");
-		panelSettings.add(lblNewLabel_18, "cell 1 11");
 
 		panelViewer = new JPanel();
 		panelViewer.setBackground(Color.GRAY);
@@ -457,6 +358,138 @@ public class View {
 		listPoolsScrollPane = new JScrollPane();
 		listPoolsScrollPane.setViewportView(listPools);
 		panelPools.add(listPoolsScrollPane, BorderLayout.CENTER);
+
+		JPanel panelSettings = new JPanel();
+		panelSettings.setBackground(Color.GRAY);
+		tabbedPane.addTab("Settings", null, panelSettings, null);
+		panelSettings.setLayout(new MigLayout("", "[][][][][][][grow]", "[][][][][][][][][][][][][][grow]"));
+
+		btnDownloader = new JButton("Start Downloader");
+		btnDownloader.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				toggleDownloadThread();
+			}
+		});
+		panelSettings.add(btnDownloader, "cell 0 0");
+
+		lblDownladerStatus = new JLabel("~~~~");
+		panelSettings.add(lblDownladerStatus, "cell 1 0");
+
+		btnConverter = new JButton("Start Converter");
+		btnConverter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				toggleConverterThread();
+			}
+		});
+		panelSettings.add(btnConverter, "cell 0 1");
+
+		lblNewLabel = new JLabel("WebSync Status:");
+		panelSettings.add(lblNewLabel, "cell 0 2");
+
+		lblSyncThread = new JLabel("~~~~");
+		panelSettings.add(lblSyncThread, "cell 1 2");
+
+		lblNewLabel_12 = new JLabel("Database Settings");
+		panelSettings.add(lblNewLabel_12, "cell 0 3");
+
+		lblNewLabel_13 = new JLabel("IP / Hostname:");
+		panelSettings.add(lblNewLabel_13, "cell 0 4,alignx trailing");
+
+		textFieldDBHostname = new JTextField();
+		panelSettings.add(textFieldDBHostname, "flowx,cell 1 4,alignx left");
+		textFieldDBHostname.setColumns(16);
+
+		lblNewLabel_14 = new JLabel("Port:");
+		panelSettings.add(lblNewLabel_14, "cell 2 4,alignx right");
+
+		textFieldDBPort = new JTextField();
+		panelSettings.add(textFieldDBPort, "cell 3 4,alignx left");
+		textFieldDBPort.setColumns(5);
+
+		chckbxLogExceptionsToConsole = new JCheckBox("Log Exceptions to console");
+		chckbxLogExceptionsToConsole.setSelected(true);
+		panelSettings.add(chckbxLogExceptionsToConsole, "cell 5 4");
+
+		lblNewLabel_16 = new JLabel("Database Name:");
+		panelSettings.add(lblNewLabel_16, "cell 0 5,alignx right");
+
+		textFieldDBName = new JTextField();
+		panelSettings.add(textFieldDBName, "cell 1 5,alignx left");
+		textFieldDBName.setColumns(16);
+
+		chckbxLogMessagesToConsole = new JCheckBox("Log Messages to console");
+		panelSettings.add(chckbxLogMessagesToConsole, "cell 5 5");
+
+		lblNewLabel_15 = new JLabel("Username:");
+		lblNewLabel_15.setHorizontalAlignment(SwingConstants.LEFT);
+		panelSettings.add(lblNewLabel_15, "cell 0 6,alignx trailing");
+
+		textFieldDBUsername = new JTextField();
+		panelSettings.add(textFieldDBUsername, "flowx,cell 1 6,alignx left");
+		textFieldDBUsername.setColumns(16);
+
+		lblNewLabel_17 = new JLabel("Password:");
+		panelSettings.add(lblNewLabel_17, "cell 2 6,alignx right");
+
+		passwordFieldDB = new JPasswordField();
+		passwordFieldDB.setColumns(16);
+		panelSettings.add(passwordFieldDB, "cell 3 6,alignx left");
+
+		lblNewLabel_19 = new JLabel("Temp Path:");
+		panelSettings.add(lblNewLabel_19, "cell 0 7,alignx trailing");
+
+		textFieldTempPath = new JTextField();
+		panelSettings.add(textFieldTempPath, "cell 1 7,alignx left");
+		textFieldTempPath.setColumns(32);
+
+		lblNewLabel_20 = new JLabel("Archive Path:");
+		panelSettings.add(lblNewLabel_20, "cell 0 8,alignx trailing");
+
+		textFieldArchivePath = new JTextField();
+		panelSettings.add(textFieldArchivePath, "cell 1 8,alignx left");
+		textFieldArchivePath.setColumns(32);
+
+		lblConverterStatus = new JLabel("~~~~");
+		panelSettings.add(lblConverterStatus, "cell 1 1 3 1");
+
+		btnSaveSettings = new JButton("Save Settings");
+		btnSaveSettings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveSettings();
+			}
+		});
+
+		lblNewLabel_22 = new JLabel("Misc Settings");
+		panelSettings.add(lblNewLabel_22, "cell 0 9");
+
+		lblNewLabel_21 = new JLabel("Converter thread count:");
+		panelSettings.add(lblNewLabel_21, "cell 0 10,alignx trailing");
+
+		spinnerConverterThreads = new JSpinner();
+		spinnerConverterThreads.setModel(new SpinnerNumberModel(1, 1, 8, 1));
+		panelSettings.add(spinnerConverterThreads, "cell 1 10");
+		panelSettings.add(btnSaveSettings, "cell 0 11");
+
+		lblNewLabel_18 = new JLabel("Saving settings requires a restart");
+		panelSettings.add(lblNewLabel_18, "cell 1 11");
+
+		lblNewLabel_23 = new JLabel("Main Log");
+		panelSettings.add(lblNewLabel_23, "cell 0 12");
+
+		lblNewLabel_24 = new JLabel("Exception Log");
+		panelSettings.add(lblNewLabel_24, "cell 4 12");
+
+		scrollPaneLog = new JScrollPane();
+		panelSettings.add(scrollPaneLog, "cell 0 13 4 1,grow");
+
+		listLog = new JList<String>(modelLog);
+		scrollPaneLog.setViewportView(listLog);
+
+		scrollPaneExceptions = new JScrollPane();
+		panelSettings.add(scrollPaneExceptions, "cell 4 13 3 1,grow");
+
+		listException = new JList<String>(modelException);
+		scrollPaneExceptions.setViewportView(listException);
 	}
 
 	/**
@@ -465,6 +498,10 @@ public class View {
 	 */
 	private void init() {
 		oConf = new Config(this);
+
+		oLog = new LoggerThread(this);
+		Thread oLoggerThread = new Thread(oLog, "Logging Thread");
+		oLoggerThread.start();
 
 		try {
 			oDB = new Database(this);
