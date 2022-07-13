@@ -480,8 +480,8 @@ public class View {
 
 		oDown = new DownloadThread(this);
 
-		for (int i = 0; i < oConf.iConverterThreads; i++) {
-			ConverterThread o = new ConverterThread(this, i);
+		for (int i = 1; i < oConf.iConverterThreads; i++) {
+			ConverterThread o = new ConverterThread(this, i - 1);
 			aConverters.add(o);
 		}
 
