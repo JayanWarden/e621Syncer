@@ -154,6 +154,10 @@ public class View {
 		tabbedPane.setBackground(Color.GRAY);
 		frmE.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
+		JPanel panelSettings = new JPanel();
+		panelSettings.setBackground(Color.GRAY);
+		tabbedPane.addTab("Settings", null, panelSettings, null);
+
 		panelViewer = new JPanel();
 		panelViewer.setBackground(Color.GRAY);
 		tabbedPane.addTab("Browse", null, panelViewer, null);
@@ -359,9 +363,6 @@ public class View {
 		listPoolsScrollPane.setViewportView(listPools);
 		panelPools.add(listPoolsScrollPane, BorderLayout.CENTER);
 
-		JPanel panelSettings = new JPanel();
-		panelSettings.setBackground(Color.GRAY);
-		tabbedPane.addTab("Settings", null, panelSettings, null);
 		panelSettings.setLayout(new MigLayout("", "[][][][][][][grow]", "[][][][][][][][][][][][][][grow]"));
 
 		btnDownloader = new JButton("Start Downloader");
