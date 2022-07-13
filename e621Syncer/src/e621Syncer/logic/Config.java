@@ -63,6 +63,7 @@ public class Config {
 		oMain.passwordFieldDB.setText(strDBPassword);
 		oMain.textFieldArchivePath.setText(strArchivePath);
 		oMain.textFieldTempPath.setText(strTempPath);
+		oMain.spinnerConverterThreads.setValue(iConverterThreads);
 
 		if (strAppID == null) {
 			strAppID = generateRandomString(16);
