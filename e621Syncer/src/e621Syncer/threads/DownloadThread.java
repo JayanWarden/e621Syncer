@@ -29,7 +29,7 @@ public class DownloadThread implements Runnable {
 
 	public View oMain;
 
-	private long lTimestampLimiter = System.currentTimeMillis();
+	private long lTimestampLimiter = 0;
 
 	public boolean bRunning = false;
 	public boolean bExited = true;
@@ -52,6 +52,7 @@ public class DownloadThread implements Runnable {
 	 */
 	@Override
 	public void run() {
+		lTimestampLimiter = System.currentTimeMillis();
 		while (bRunning) {
 			waitLimit();
 			DBObject o = new DBObject();
@@ -188,14 +189,16 @@ public class DownloadThread implements Runnable {
 	 * Keep in line with the e621 API spec. Only 1 request per second.
 	 */
 	private void waitLimit() {
-		while (System.currentTimeMillis() - lTimestampLimiter < 1000) {
+		long lTimePassed = System.currentTimeMillis() - lTimestampLimiter;
+		while (lTimePassed < 1000) {
 			try {
-				Thread.sleep(1);
+				Thread.sleep(1000 - lTimePassed - 10 > 0 ? 1000 - lTimePassed - 10 : 0);
 			} catch (InterruptedException e) {
 				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
+			lTimePassed = System.currentTimeMillis() - lTimestampLimiter;
 		}
-		lTimestampLimiter = System.currentTimeMillis();
+		lTimestampLimiter += 1000;
 	}
 
 	/**
@@ -211,6 +214,9 @@ public class DownloadThread implements Runnable {
 		putInQueue(p);
 	}
 
+	/**
+	 * Updates the strStatus string of this class
+	 */
 	private synchronized void updateStatus() {
 		strStatus = "Downloading " + aIDsDownloading.size() + " post" + (aIDsDownloading.size() == 1 ? " | " : "s | ");
 		synchronized (aIDsDownloading) {

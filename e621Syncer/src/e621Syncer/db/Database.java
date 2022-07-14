@@ -441,7 +441,7 @@ public class Database implements Runnable {
 							if (!rs.getString("updated_at").equals(o.aStrQuery1[3])
 									|| !rs.getString("description").equals(o.aStrQuery1[5])) {
 								try (PreparedStatement ps2 = con.prepareStatement(
-										"UPDATE posts SET updated_at = ?, description = ? WHERE id = ?");) {
+										"UPDATE pools SET updated_at = ?, description = ? WHERE id = ?");) {
 									ps2.setString(1, timestamp + "");
 									ps2.setString(2, o.aStrQuery1[5]);
 									ps2.setString(3, o.aStrQuery1[0]);
@@ -848,11 +848,24 @@ public class Database implements Runnable {
 						}
 					}
 
-					ps = con.prepareStatement("UPDATE posts SET thumbnail = ?, rename_ext = ? WHERE id = ?");
-					ps.setBoolean(1, o.oPostObjectQuery1.bThumb);
-					ps.setString(2, iRenameExt + "");
-					ps.setString(3, o.oPostObjectQuery1.id + "");
-					ps.executeUpdate();
+					boolean bDeadlocked = true;
+					int iRetries = 0;
+					while (bDeadlocked && iRetries < 5) {
+						bDeadlocked = false;
+						iRetries++;
+						try {
+							ps = con.prepareStatement("UPDATE posts SET thumbnail = ?, rename_ext = ? WHERE id = ?");
+							ps.setBoolean(1, o.oPostObjectQuery1.bThumb);
+							ps.setString(2, iRenameExt + "");
+							ps.setString(3, o.oPostObjectQuery1.id + "");
+							ps.executeUpdate();
+						} catch (Exception e) {
+							bDeadlocked = true;
+							if (iRetries == 5) {
+								oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
+							}
+						}
+					}
 
 					ps.close();
 				} catch (SQLException e) {

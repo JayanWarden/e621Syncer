@@ -363,7 +363,7 @@ public class View {
 		listPoolsScrollPane.setViewportView(listPools);
 		panelPools.add(listPoolsScrollPane, BorderLayout.CENTER);
 
-		panelSettings.setLayout(new MigLayout("", "[][][][][][][growprio 0,grow]", "[][][][][][][][][][][][][][grow]"));
+		panelSettings.setLayout(new MigLayout("", "[][][][grow 0][][][growprio 0,grow 0]", "[][][][][][][][][][][][][][grow]"));
 
 		btnDownloader = new JButton("Start Downloader");
 		btnDownloader.addActionListener(new ActionListener() {
@@ -374,7 +374,7 @@ public class View {
 		panelSettings.add(btnDownloader, "cell 0 0");
 
 		lblDownladerStatus = new JLabel("~~~~");
-		panelSettings.add(lblDownladerStatus, "cell 1 0");
+		panelSettings.add(lblDownladerStatus, "cell 1 0 5 1");
 
 		btnConverter = new JButton("Start Converter");
 		btnConverter.addActionListener(new ActionListener() {
@@ -451,7 +451,7 @@ public class View {
 		textFieldArchivePath.setColumns(32);
 
 		lblConverterStatus = new JLabel("~~~~");
-		panelSettings.add(lblConverterStatus, "cell 1 1 3 1");
+		panelSettings.add(lblConverterStatus, "cell 1 1 5 1");
 
 		btnSaveSettings = new JButton("Save Settings");
 		btnSaveSettings.addActionListener(new ActionListener() {
@@ -487,7 +487,7 @@ public class View {
 		scrollPaneLog.setViewportView(listLog);
 
 		scrollPaneExceptions = new JScrollPane();
-		panelSettings.add(scrollPaneExceptions, "cell 4 13 3 1,grow");
+		panelSettings.add(scrollPaneExceptions, "cell 4 13 3 1,pushy ,growy");
 
 		listException = new JList<String>(modelException);
 		scrollPaneExceptions.setViewportView(listException);
