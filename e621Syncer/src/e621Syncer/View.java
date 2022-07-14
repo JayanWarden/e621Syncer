@@ -363,7 +363,7 @@ public class View {
 		listPoolsScrollPane.setViewportView(listPools);
 		panelPools.add(listPoolsScrollPane, BorderLayout.CENTER);
 
-		panelSettings.setLayout(new MigLayout("", "[][][][][][][grow]", "[][][][][][][][][][][][][][grow]"));
+		panelSettings.setLayout(new MigLayout("", "[][][][][][][growprio 0,grow]", "[][][][][][][][][][][][][][grow]"));
 
 		btnDownloader = new JButton("Start Downloader");
 		btnDownloader.addActionListener(new ActionListener() {

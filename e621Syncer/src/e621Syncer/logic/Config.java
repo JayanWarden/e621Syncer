@@ -14,7 +14,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.3";
+	public String strVersion = "0.4";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -25,6 +25,7 @@ public class Config {
 	public String strDBName = "e621sync";
 	public int iNumWorkers = 1;
 	public int iConverterThreads = 1;
+	public int iDownloaderThreads = 4;
 	public int iNumDBThreads = 16;
 	public int iSyncThreadTimeout = 1000 * 60 * 60;
 
@@ -136,6 +137,8 @@ public class Config {
 				iHEVCCQP = Integer.parseInt(strValue);
 			} else if (strData.startsWith("CT#:")) {
 				iConverterThreads = Integer.parseInt(strValue);
+			} else if (strData.startsWith("DT#:")) {
+				iDownloaderThreads = Integer.parseInt(strValue);
 			} else if (strData.startsWith("LGV:")) {
 				iLogVerbosity = Integer.parseInt(strValue);
 			} else if (strData.startsWith("LGE:")) {
@@ -181,6 +184,7 @@ public class Config {
 		sb.append("JQ:" + iJPGQ + System.lineSeparator());
 		sb.append("X265CRF:" + iHEVCCQP + System.lineSeparator());
 		sb.append("CT#:" + iConverterThreads + System.lineSeparator());
+		sb.append("DT#:" + iDownloaderThreads + System.lineSeparator());
 		sb.append("LGV:" + iLogVerbosity + System.lineSeparator());
 		sb.append("LGE:" + (bLogExceptionsToConsole ? "T" : "F") + System.lineSeparator());
 		sb.append("LGM:" + (bLogMessagesToConsole ? "T" : "F") + System.lineSeparator());

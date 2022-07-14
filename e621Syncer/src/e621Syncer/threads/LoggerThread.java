@@ -57,7 +57,7 @@ public class LoggerThread implements Runnable {
 		String strTrace = sw.toString();
 		oMain.modelException.addElement(strTrace);
 
-		while (oMain.modelException.getSize() > 100) {
+		for (int i = oMain.modelException.getSize(); i > 100; i--) {
 			oMain.modelException.remove(0);
 		}
 		oMain.listException.setSelectedIndex(oMain.modelException.getSize() - 1);
@@ -78,7 +78,7 @@ public class LoggerThread implements Runnable {
 			Date now = Calendar.getInstance().getTime();
 			String strMessage = df.format(now) + " " + o.strMessage;
 			oMain.modelLog.addElement(strMessage);
-			while (oMain.modelLog.getSize() > 100) {
+			for (int i = oMain.modelLog.getSize(); i > 100; i--) {
 				oMain.modelLog.remove(0);
 			}
 			oMain.listLog.setSelectedIndex(oMain.modelLog.getSize() - 1);

@@ -149,7 +149,7 @@ public class ViewerLogic {
 			}
 		}
 		PoolObject p = aPools.get(oMain.listPools.getSelectedIndex());
-		aTagSearchIDs = p.aPostIDs;
+		aTagSearchIDs = Collections.synchronizedList(p.aPostIDs);
 		strMode = "list";
 		bTagSearch = true;
 		loadItems(null);

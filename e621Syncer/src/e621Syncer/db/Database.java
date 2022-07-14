@@ -535,8 +535,7 @@ public class Database implements Runnable {
 
 				try (Connection con = ds.getConnection();) {
 					PreparedStatement ps = con
-							.prepareStatement("SELECT * FROM download_queue WHERE NOT post_id = ? LIMIT 1");
-					ps.setString(1, o.strQuery1);
+							.prepareStatement("SELECT * FROM download_queue " + o.strQuery1 + " LIMIT 1");
 					ResultSet rs = ps.executeQuery();
 					rs = ps.executeQuery();
 					if (rs.next()) {

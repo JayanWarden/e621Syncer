@@ -39,7 +39,7 @@ public enum DBCommand {
 	/**
 	 * <pre>
 	 * Tries to retrieve one element from the download queue
-	 * strQuery1 = posts.id of the last download object to exclude
+	 * strQuery1 = STRING PostIDs to exclude. Must have "WHERE NOT post_id = ID[ AND NOT post_id....]
 	 * 
 	 * iResult1 = ID of download_queue
 	 * iResult2 = ID of post to download
@@ -59,15 +59,13 @@ public enum DBCommand {
 	 * </pre>
 	 */
 	GET_POST,
-	
+
 	/**
 	 * <pre>
-	 * Tries to retrieve a post by given query
-	 * strQuery1 = SQL Query to contruct a PostObject from
-	 * Needs to contain "SELECT id FROM posts"
+	 * Tries to retrieve a post by given query strQuery1 = SQL Query to contruct a
+	 * PostObject from Needs to contain "SELECT id FROM posts"
 	 * 
-	 * oResultPostObject1 = PostObject
-	 * bNoResult = true, when no post found
+	 * oResultPostObject1 = PostObject bNoResult = true, when no post found
 	 */
 	GET_POST_FROM_ID_QUERY,
 
@@ -112,7 +110,7 @@ public enum DBCommand {
 	 * </pre>
 	 */
 	GET_NEWEST_POSTS,
-	
+
 	/**
 	 * <pre>
 	 * Get a list of up to strQuery2 IDs of the posts regarding to the seach query
@@ -126,7 +124,7 @@ public enum DBCommand {
 	 * </pre>
 	 */
 	SEARCH_POSTS,
-	
+
 	/**
 	 * <pre>
 	 * Adds an item to the download list
@@ -134,7 +132,7 @@ public enum DBCommand {
 	 * </pre>
 	 */
 	REDOWNLOAD,
-	
+
 	/**
 	 * <pre>
 	 * Tries to get all Post IDs corresponding to a tag string
@@ -146,7 +144,7 @@ public enum DBCommand {
 	 * </pre>
 	 */
 	GET_POST_IDS_FROM_TAG_STRING,
-	
+
 	/**
 	 * <pre>
 	 * Tries to load all pools in the database
