@@ -3,7 +3,6 @@ package e621Syncer.threads;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,7 +19,6 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.RFC4180Parser;
 import com.opencsv.RFC4180ParserBuilder;
-import com.opencsv.exceptions.CsvValidationException;
 
 import e621Syncer.View;
 import e621Syncer.db.DBCommand;
