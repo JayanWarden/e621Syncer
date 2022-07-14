@@ -311,7 +311,7 @@ public class ConverterThread implements Runnable {
 		oMain.oLog.log(strName + " convertVideo " + oSource.getName(), null, 5, LogType.NORMAL);
 		strStatus = "Converting video";
 		String[] command = new String[] { "\"lib\\ffmpeg.exe" + '"' + " -i " + oSource.getAbsolutePath()
-				+ " -c:v libx265 -vtag hvc1 -c:a copy -preset veryslow -x265-params \"wpp=1:pmode=1:pme=1:ref=8:allow-non-conformance=1:rect=1:b-intra=1:max-merge=5:weightb=1:analyze-src-pics=1:b-adapt=2:bframes=16:bframe-bias=100:crf="
+				+ " -c:v libx265 -vtag hvc1 -c:a copy -preset medium -x265-params \"wpp=1:tune=ssim:ctu=64:limit-refs=3:limit-modes=1:rc-lookahead=60:rd=5:ref=6:allow-non-conformance=1:rect=1:amp=1:aq-mode=3:b-intra=1:max-merge=5:weightb=1:analyze-src-pics=1:b-adapt=2:bframes=8:tu-intra-depth=4:tu-inter-depth=4:limit-tu=1:me=2:subme=2:ssim-rd=1:bframe-bias=100:crf="
 				+ oMain.oConf.iHEVCCQP + "\"" + " " + oTarget.getAbsolutePath() + "\"" };
 
 		Runtime rt = Runtime.getRuntime();

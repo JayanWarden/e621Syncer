@@ -32,7 +32,7 @@ public class LoggerThread implements Runnable {
 			try {
 				LogObject o = aMainQueue.take();
 				if (o.eLogType == LogType.EXCEPTION) {
-					logException(o.exception);
+					logException(o);
 				} else {
 					logMessage(o);
 				}
@@ -47,13 +47,12 @@ public class LoggerThread implements Runnable {
 	 * 
 	 * @param e - Exception
 	 */
-	private void logException(Exception e) {
-		Date now = Calendar.getInstance().getTime();
-		oMain.modelException.addElement(df.format(now));
+	private void logException(LogObject o) {
+		oMain.modelException.addElement(df.format(o.oDate));
 
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
+		o.exception.printStackTrace(pw);
 		String strTrace = sw.toString();
 		oMain.modelException.addElement(strTrace);
 
@@ -64,7 +63,7 @@ public class LoggerThread implements Runnable {
 		oMain.listException.ensureIndexIsVisible(oMain.listException.getSelectedIndex());
 
 		if (oMain.oConf.bLogExceptionsToConsole) {
-			e.printStackTrace();
+			o.exception.printStackTrace();
 		}
 	}
 
@@ -75,8 +74,7 @@ public class LoggerThread implements Runnable {
 	 */
 	private void logMessage(LogObject o) {
 		if (o.iSeverity <= oMain.oConf.iLogVerbosity) {
-			Date now = Calendar.getInstance().getTime();
-			String strMessage = df.format(now) + " " + o.strMessage;
+			String strMessage = df.format(o.oDate) + " " + o.strMessage;
 			oMain.modelLog.addElement(strMessage);
 			for (int i = oMain.modelLog.getSize(); i > 100; i--) {
 				oMain.modelLog.remove(0);
@@ -101,6 +99,8 @@ public class LoggerThread implements Runnable {
 	 */
 	public void log(String strMessage, Exception e, int iSeverity, LogType eLogType) {
 		LogObject o = new LogObject();
+		Date now = Calendar.getInstance().getTime();
+		o.oDate = now;
 		o.eLogType = eLogType;
 		if (o.eLogType == LogType.EXCEPTION) {
 			o.exception = e;

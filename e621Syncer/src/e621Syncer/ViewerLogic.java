@@ -137,6 +137,7 @@ public class ViewerLogic {
 	 */
 	public void loadSelectedPool() {
 		stopPreloading();
+		strStatus = "Load Pool Begin";
 		iQueryOffset = 0;
 		if (strMode.equals("post")) {
 			oMain.panelInfos.setVisible(false);
