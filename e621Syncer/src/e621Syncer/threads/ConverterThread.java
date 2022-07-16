@@ -236,7 +236,7 @@ public class ConverterThread implements Runnable {
 				oThumb.delete();
 			}
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			return false;
 		}
