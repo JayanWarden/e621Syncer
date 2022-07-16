@@ -14,7 +14,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.4.3";
+	public String strVersion = "0.4.3.1";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -167,7 +167,7 @@ public class Config {
 		bLogMessagesToConsole = oMain.chckbxLogMessagesToConsole.isSelected();
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("ImageConv config file" + System.lineSeparator());
+		sb.append("e621Syncer config file" + System.lineSeparator());
 		sb.append("ID:" + strAppID + System.lineSeparator());
 		sb.append("TP:" + strTempPath + System.lineSeparator());
 		sb.append("AP:" + strArchivePath + System.lineSeparator());
