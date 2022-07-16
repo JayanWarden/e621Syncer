@@ -14,7 +14,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.4.2";
+	public String strVersion = "0.4.3";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";

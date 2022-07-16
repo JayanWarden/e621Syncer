@@ -57,17 +57,17 @@ public class DownloadThread implements Runnable {
 			waitLimit();
 			DBObject o = new DBObject();
 
-			if (aIDsDownloading.size() > 0) {
-				synchronized (aIDsDownloading) {
+			synchronized (aIDsDownloading) {
+				if (aIDsDownloading.size() > 0) {
 					o.strQuery1 = "WHERE NOT post_id = " + aIDsDownloading.get(0);
+					Iterator<Integer> i = aIDsDownloading.iterator();
+					i.next();
+					while (i.hasNext()) {
+						o.strQuery1 = o.strQuery1 + " AND NOT post_id = " + i.next().intValue();
+					}
+				} else {
+					o.strQuery1 = "";
 				}
-				Iterator<Integer> i = aIDsDownloading.iterator();
-				i.next();
-				while (i.hasNext()) {
-					o.strQuery1 = o.strQuery1 + " AND NOT post_id = " + i.next().intValue();
-				}
-			} else {
-				o.strQuery1 = "";
 			}
 
 			o.command = DBCommand.GET_DOWNLOAD_QUEUE;

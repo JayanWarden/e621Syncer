@@ -785,7 +785,7 @@ public class Database implements Runnable {
 				try (Connection con = ds.getConnection();) {
 					PreparedStatement ps = con.prepareStatement(
 							"SELECT post_id FROM convert_queue WHERE NOT " + o.strQuery1 + " LIMIT 1 OFFSET ?");
-					ps.setInt(1, o.iQuery1);
+					ps.setInt(1, o.iQuery1 * 2);
 					ResultSet rs = ps.executeQuery();
 					if (rs.next()) {
 						o.strQuery1 = rs.getInt("post_id") + "";
