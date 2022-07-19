@@ -191,6 +191,8 @@ public class PreloaderThread implements Runnable {
 			loadBPG(o, oViewerLogic.oMain);
 		} else if (o.strExtConv.equals("gif")) {
 			loadGIF(o, oViewerLogic.oMain);
+		} else if (o.strExtConv.equals("mp4")) {
+			loadVideo(o, oViewerLogic.oMain);
 		}
 
 		iID = o.id;
@@ -274,6 +276,23 @@ public class PreloaderThread implements Runnable {
 			return true;
 		} catch (Exception e) {
 			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
+		}
+		return false;
+	}
+
+	/**
+	 * Logic for handling Video metadata loading
+	 * 
+	 * @param o     - PostObject to preload
+	 * @param oMain - View main class handle
+	 * @return boolean success?
+	 */
+	public static boolean loadVideo(PostObject o, View oMain) {
+		File oSource = new File(oMain.oConf.strArchivePath + "\\" + o.strMD5.substring(0, 2) + "\\"
+				+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".mp4");
+		o.iFilesize = oSource.length();
+		if (oSource.exists()) {
+			return true;
 		}
 		return false;
 	}

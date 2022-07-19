@@ -1,6 +1,7 @@
 package e621Syncer;
 
 import java.awt.BorderLayout;
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -25,11 +26,16 @@ import javax.swing.SwingUtilities;
 import e621Syncer.db.DBCommand;
 import e621Syncer.db.DBObject;
 import e621Syncer.logic.Config;
+import e621Syncer.logic.JWDiscoveryStrategy;
 import e621Syncer.logic.LogType;
 import e621Syncer.logic.PoolObject;
 import e621Syncer.logic.PostObject;
 import e621Syncer.logic.TagObject;
 import e621Syncer.threads.PreloaderThread;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery;
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.player.component.MediaPlayerSpecs;
 
 public class ViewerLogic {
 	public String strName = "ViewerLogic";
@@ -51,6 +57,7 @@ public class ViewerLogic {
 	public PreloaderThread oPreloaderLeft = new PreloaderThread(this, true);
 	public PreloaderThread oPreloaderRight = new PreloaderThread(this, false);
 	public boolean bTagSearch = false;
+	public boolean bPlayingVideo = false;
 	public List<Integer> aTagSearchIDs;
 
 	public LinkedBlockingDeque<PostObject> aQueueLeft = new LinkedBlockingDeque<PostObject>();
@@ -60,6 +67,12 @@ public class ViewerLogic {
 	private boolean bPreloadingStatus = false;
 
 	private ArrayList<PoolObject> aPools;
+
+	private JPanel panelPlayer;
+	private PlayerControlsPanel panelControls;
+	private MediaPlayerFactory VLCFactory;
+	public EmbeddedMediaPlayerComponent VLCEmbed;
+	private Canvas videoSurface;
 
 	/**
 	 * Create ViewerLogic
@@ -81,6 +94,29 @@ public class ViewerLogic {
 		Thread oThread2 = new Thread(oPreloaderRight, "Preloader Thread Previous");
 		oThread2.start();
 
+		oMain.oLog.log(strName + " starting to init VLC", null, 0, LogType.NORMAL);
+		System.out.println(strName + " starting to init VLC");
+
+		panelPlayer = new JPanel();
+		NativeDiscovery discovery = new NativeDiscovery(new JWDiscoveryStrategy());
+		VLCFactory = new MediaPlayerFactory(discovery);
+		VLCEmbed = new EmbeddedMediaPlayerComponent(MediaPlayerSpecs.embeddedMediaPlayerSpec().withFactory(VLCFactory));
+
+		panelControls = new PlayerControlsPanel(VLCEmbed.mediaPlayer());
+
+		videoSurface = new Canvas();
+		videoSurface.setBackground(Color.black);
+		videoSurface.setSize(800, 600);
+		VLCEmbed.mediaPlayer().videoSurface().set(VLCFactory.videoSurfaces().newVideoSurface(videoSurface));
+
+		panelPlayer.setLayout(new BorderLayout(0, 0));
+		panelPlayer.add(videoSurface, BorderLayout.CENTER);
+		panelPlayer.add(panelControls, BorderLayout.SOUTH);
+		panelPlayer.setVisible(true);
+
+		oMain.oLog.log(strName + " VLC init finished", null, 0, LogType.NORMAL);
+		System.out.println(strName + " VLC init finished");
+		
 		loadPools();
 	}
 
@@ -535,6 +571,11 @@ public class ViewerLogic {
 			oCurrentPost = o;
 			startPreloading();
 
+			if (bPlayingVideo) {
+				VLCEmbed.mediaPlayer().controls().stop();
+				bPlayingVideo = false;
+			}
+
 			oMain.panelInfos.setVisible(true);
 			oMain.panelSidebar.setVisible(true);
 			oMain.listSidebar.setVisible(true);
@@ -589,6 +630,8 @@ public class ViewerLogic {
 				loadImage(o, true);
 			} else if (o.strExtConv.equals("swf")) {
 				loadSWF(o);
+			} else if (o.strExtConv.equals("mp4")) {
+				loadVideo(o);
 			}
 			oMain.lblPostFilesize.setText(Config.convertBitrate(o.iFilesize));
 		}
@@ -656,6 +699,31 @@ public class ViewerLogic {
 			oMain.panelMainWindow.add(label);
 		}
 		oMain.frmE.repaint();
+	}
+
+	/**
+	 * Tries to load a video with the loaded VLC embedded player
+	 * 
+	 * @param o
+	 */
+	private void loadVideo(PostObject o) {
+		PreloaderThread.loadVideo(o, oMain);
+		if (oTrackedCenter != null) {
+			oMain.panelViewer.remove(oTrackedCenter);
+			oTrackedCenter = null;
+		}
+		oTrackedCenter = panelPlayer;
+		oMain.panelViewer.remove(oMain.panelMainWindow);
+		oMain.panelViewer.add(panelPlayer, BorderLayout.CENTER);
+		oMain.frmE.revalidate();
+		oMain.frmE.repaint();
+
+		File oSource = new File(oMain.oConf.strArchivePath + "\\" + o.strMD5.substring(0, 2) + "\\"
+				+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".mp4");
+		if (oSource.exists() && oSource.length() > 0) {
+			VLCEmbed.mediaPlayer().media().play(oSource.getAbsolutePath());
+			bPlayingVideo = true;
+		}
 	}
 
 	/**

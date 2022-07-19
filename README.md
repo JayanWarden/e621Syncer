@@ -29,12 +29,27 @@ Uses BPG to compress images and HEVC for videos
 - mysql-connector-java
 - opencsv
 - slf4j-api
+- vlcj
+- vlcj-natives
+- jna
+- jna-platform
 
 ## Additional external tools
 
 - BPG Image De- / Compressor -> https://bellard.org/bpg/
 - FFMPEG -> https://ffmpeg.org/
 - MozJPG -> https://github.com/mozilla/mozjpeg
+
+## VLC
+
+VLC is needed for video playback.
+The project expects axvlc.dll, libvlc.dll, libvlccore.dll and npvlc.dll in a subfolder lib/vlc . 
+VLC's plugins go in lib/vlc/plugins.
+You can get VLC here: https://www.videolan.org/vlc/index.html
+
+A complete copy of LibVLC x64 is provided in the release package.
+
+The VLC native library path is hardcoded in JWDiscoveryStrategy.java , it will NOT use a locally installed VLC
 
 ## How to run this project
 

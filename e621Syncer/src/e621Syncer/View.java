@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
@@ -90,6 +92,10 @@ public class View {
 	public JList<String> listException;
 
 	private JScrollPane listSidebarScrollPane, listPoolsScrollPane, scrollPaneLog, scrollPaneExceptions;
+	private JMenu mnNewMenu_1;
+	private JMenuItem mntmNewMenuItem_2;
+	private JMenu mnNewMenu_2;
+	private JMenuItem mntmNewMenuItem_3;
 
 	/**
 	 * Launch the application.
@@ -126,6 +132,12 @@ public class View {
 		frmE.setTitle("e621Syncer");
 		frmE.setBounds(100, 100, 1280, 720);
 		frmE.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmE.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				quit();
+			}
+		});
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(Color.GRAY);
@@ -149,6 +161,30 @@ public class View {
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem_1);
+
+		mnNewMenu_1 = new JMenu("Debug");
+		menuBar.add(mnNewMenu_1);
+
+		mnNewMenu_2 = new JMenu("System.gc()");
+		mnNewMenu_1.add(mnNewMenu_2);
+
+		mntmNewMenuItem_2 = new JMenuItem("x1");
+		mntmNewMenuItem_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.gc();
+			}
+		});
+		mnNewMenu_2.add(mntmNewMenuItem_2);
+
+		mntmNewMenuItem_3 = new JMenuItem("x3");
+		mntmNewMenuItem_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.gc();
+				System.gc();
+				System.gc();
+			}
+		});
+		mnNewMenu_2.add(mntmNewMenuItem_3);
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBackground(Color.GRAY);
@@ -363,7 +399,8 @@ public class View {
 		listPoolsScrollPane.setViewportView(listPools);
 		panelPools.add(listPoolsScrollPane, BorderLayout.CENTER);
 
-		panelSettings.setLayout(new MigLayout("", "[][][][grow 0][][][growprio 0,grow 0]", "[][][][][][][][][][][][][][grow]"));
+		panelSettings.setLayout(
+				new MigLayout("", "[][][][grow 0][][][growprio 0,grow 0]", "[][][][][][][][][][][][][][grow]"));
 
 		btnDownloader = new JButton("Start Downloader");
 		btnDownloader.addActionListener(new ActionListener() {
@@ -684,6 +721,7 @@ public class View {
 	}
 
 	public void quit() {
+		oUILogic.VLCEmbed.release();
 		System.exit(0);
 	}
 
