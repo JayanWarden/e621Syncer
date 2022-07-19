@@ -811,6 +811,14 @@ public class ViewerLogic {
 	 */
 	private void startPreloading() {
 		if (!bPreloadingStatus) {
+			while(oPreloaderLeft.bExecuting || oPreloaderRight.bExecuting) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			aQueueLeft.clear();
 			aQueueRight.clear();
 			oPreloaderLeft.iID = oCurrentPost.id;

@@ -92,10 +92,8 @@ public class View {
 	public JList<String> listException;
 
 	private JScrollPane listSidebarScrollPane, listPoolsScrollPane, scrollPaneLog, scrollPaneExceptions;
-	private JMenu mnNewMenu_1;
-	private JMenuItem mntmNewMenuItem_2;
-	private JMenu mnNewMenu_2;
-	private JMenuItem mntmNewMenuItem_3;
+	private JMenu mnNewMenu_1, mnNewMenu_2;
+	private JMenuItem mntmNewMenuItem_2, mntmNewMenuItem_3;
 
 	/**
 	 * Launch the application.
@@ -205,9 +203,11 @@ public class View {
 		panelNorth.setLayout(new MigLayout("", "[][grow]", "[]"));
 
 		lblNewLabel_1 = new JLabel("Search:");
+		lblNewLabel_1.setToolTipText("Tags to search.\r\nSpit by spaces, just like on e621");
 		panelNorth.add(lblNewLabel_1, "cell 0 0,alignx trailing");
 
 		textFieldSearch = new JTextField();
+		textFieldSearch.setToolTipText("Tags to search.\r\nSpit by spaces, just like on e621");
 		textFieldSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				search();
@@ -403,6 +403,7 @@ public class View {
 				new MigLayout("", "[][][][grow 0][][][growprio 0,grow 0]", "[][][][][][][][][][][][][][grow]"));
 
 		btnDownloader = new JButton("Start Downloader");
+		btnDownloader.setToolTipText("Starts downloader threads.\r\nToggle Button, will stop them when they are already started");
 		btnDownloader.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				toggleDownloadThread();
@@ -411,9 +412,11 @@ public class View {
 		panelSettings.add(btnDownloader, "cell 0 0");
 
 		lblDownladerStatus = new JLabel("~~~~");
+		lblDownladerStatus.setToolTipText("Status for the downloader threads");
 		panelSettings.add(lblDownladerStatus, "cell 1 0 5 1");
 
 		btnConverter = new JButton("Start Converter");
+		btnConverter.setToolTipText("Starts Converter threads.\r\nToggle Button, will stop them when they are already started");
 		btnConverter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				toggleConverterThread();
@@ -422,75 +425,95 @@ public class View {
 		panelSettings.add(btnConverter, "cell 0 1");
 
 		lblNewLabel = new JLabel("WebSync Status:");
-		panelSettings.add(lblNewLabel, "cell 0 2");
+		lblNewLabel.setToolTipText("Status for the e621 DB synchronization thread");
+		panelSettings.add(lblNewLabel, "cell 0 2,alignx right");
 
 		lblSyncThread = new JLabel("~~~~");
+		lblSyncThread.setToolTipText("Status for the e621 DB synchronization thread");
 		panelSettings.add(lblSyncThread, "cell 1 2");
 
 		lblNewLabel_12 = new JLabel("Database Settings");
 		panelSettings.add(lblNewLabel_12, "cell 0 3");
 
 		lblNewLabel_13 = new JLabel("IP / Hostname:");
+		lblNewLabel_13.setToolTipText("IP or hostname for the MySQL database server");
 		panelSettings.add(lblNewLabel_13, "cell 0 4,alignx trailing");
 
 		textFieldDBHostname = new JTextField();
+		textFieldDBHostname.setToolTipText("IP or hostname for the MySQL database server");
 		panelSettings.add(textFieldDBHostname, "flowx,cell 1 4,alignx left");
 		textFieldDBHostname.setColumns(16);
 
 		lblNewLabel_14 = new JLabel("Port:");
+		lblNewLabel_14.setToolTipText("Port for the MySQL server connection");
 		panelSettings.add(lblNewLabel_14, "cell 2 4,alignx right");
 
 		textFieldDBPort = new JTextField();
+		textFieldDBPort.setToolTipText("Port for the MySQL server connection");
 		panelSettings.add(textFieldDBPort, "cell 3 4,alignx left");
 		textFieldDBPort.setColumns(5);
 
 		chckbxLogExceptionsToConsole = new JCheckBox("Log Exceptions to console");
+		chckbxLogExceptionsToConsole.setToolTipText("Should thrown exceptions appear in the standard output?");
 		chckbxLogExceptionsToConsole.setSelected(true);
 		panelSettings.add(chckbxLogExceptionsToConsole, "cell 5 4");
 
 		lblNewLabel_16 = new JLabel("Database Name:");
+		lblNewLabel_16.setToolTipText("Database / Schema name for this tool to use.\r\nIt would be easiest to simply create a database with the same \r\nname as the correcponding user");
 		panelSettings.add(lblNewLabel_16, "cell 0 5,alignx right");
 
 		textFieldDBName = new JTextField();
+		textFieldDBName.setToolTipText("Database / Schema name for this tool to use.\r\nIt would be easiest to simply create a database with the same \r\nname as the correcponding user");
 		panelSettings.add(textFieldDBName, "cell 1 5,alignx left");
 		textFieldDBName.setColumns(16);
 
 		chckbxLogMessagesToConsole = new JCheckBox("Log Messages to console");
+		chckbxLogMessagesToConsole.setToolTipText("Should log messages appear in the standard output?");
 		panelSettings.add(chckbxLogMessagesToConsole, "cell 5 5");
 
 		lblNewLabel_15 = new JLabel("Username:");
+		lblNewLabel_15.setToolTipText("Username for this app to log on to the DB server.\r\nMust have all permissions on the provided Database Name");
 		lblNewLabel_15.setHorizontalAlignment(SwingConstants.LEFT);
 		panelSettings.add(lblNewLabel_15, "cell 0 6,alignx trailing");
 
 		textFieldDBUsername = new JTextField();
+		textFieldDBUsername.setToolTipText("Username for this app to log on to the DB server.\r\nMust have all permissions on the provided Database Name");
 		panelSettings.add(textFieldDBUsername, "flowx,cell 1 6,alignx left");
 		textFieldDBUsername.setColumns(16);
 
 		lblNewLabel_17 = new JLabel("Password:");
+		lblNewLabel_17.setToolTipText("Password for the DB user");
 		panelSettings.add(lblNewLabel_17, "cell 2 6,alignx right");
 
 		passwordFieldDB = new JPasswordField();
+		passwordFieldDB.setToolTipText("Password for the DB user");
 		passwordFieldDB.setColumns(16);
 		panelSettings.add(passwordFieldDB, "cell 3 6,alignx left");
 
 		lblNewLabel_19 = new JLabel("Temp Path:");
+		lblNewLabel_19.setToolTipText("Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
 		panelSettings.add(lblNewLabel_19, "cell 0 7,alignx trailing");
 
 		textFieldTempPath = new JTextField();
+		textFieldTempPath.setToolTipText("Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
 		panelSettings.add(textFieldTempPath, "cell 1 7,alignx left");
 		textFieldTempPath.setColumns(32);
 
 		lblNewLabel_20 = new JLabel("Archive Path:");
+		lblNewLabel_20.setToolTipText("Path used to store all downloaded and converted files on.");
 		panelSettings.add(lblNewLabel_20, "cell 0 8,alignx trailing");
 
 		textFieldArchivePath = new JTextField();
+		textFieldArchivePath.setToolTipText("Path used to store all downloaded and converted files on.");
 		panelSettings.add(textFieldArchivePath, "cell 1 8,alignx left");
 		textFieldArchivePath.setColumns(32);
 
 		lblConverterStatus = new JLabel("~~~~");
+		lblConverterStatus.setToolTipText("Status for the converter threads");
 		panelSettings.add(lblConverterStatus, "cell 1 1 5 1");
 
 		btnSaveSettings = new JButton("Save Settings");
+		btnSaveSettings.setToolTipText("Save settings to .ini file. Needs a restart of the application");
 		btnSaveSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveSettings();
@@ -501,9 +524,11 @@ public class View {
 		panelSettings.add(lblNewLabel_22, "cell 0 9");
 
 		lblNewLabel_21 = new JLabel("Converter thread count:");
+		lblNewLabel_21.setToolTipText("How many converter threads should we spin up?\r\nOne thread can fully load a system, especially during high-res video conversion.\r\nUpper limit of 8");
 		panelSettings.add(lblNewLabel_21, "cell 0 10,alignx trailing");
 
 		spinnerConverterThreads = new JSpinner();
+		spinnerConverterThreads.setToolTipText("How many converter threads should we spin up?\r\nOne thread can fully load a system, especially during high-res video conversion.\r\nUpper limit of 8");
 		spinnerConverterThreads.setModel(new SpinnerNumberModel(1, 1, 8, 1));
 		panelSettings.add(spinnerConverterThreads, "cell 1 10");
 		panelSettings.add(btnSaveSettings, "cell 0 11");

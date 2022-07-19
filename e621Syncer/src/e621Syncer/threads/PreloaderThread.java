@@ -50,6 +50,7 @@ public class PreloaderThread implements Runnable {
 		while (true) {
 
 			if (bRunning) {
+				bExecuting = true;
 				try {
 					checkSize();
 					preload();
@@ -60,7 +61,7 @@ public class PreloaderThread implements Runnable {
 
 			bExecuting = false;
 			try {
-				Thread.sleep(10);
+				Thread.sleep(bRunning ? 1 : 500);
 			} catch (InterruptedException e) {
 				oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
@@ -167,7 +168,6 @@ public class PreloaderThread implements Runnable {
 	 * Handle preloading of "List Newest" mode
 	 */
 	private void classicPreload() {
-		bExecuting = true;
 		DBObject o = new DBObject();
 		o.command = DBCommand.GET_POST_FROM_ID_QUERY;
 		o.strQuery1 = strSQL1 + (bRightLoader ? "> " + iID : "< " + iID) + strSQL2 + (bRightLoader ? "ASC" : "DESC")
