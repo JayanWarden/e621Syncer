@@ -1,7 +1,7 @@
 # e621Syncer
 Synchronizes e621 locally. 
 
-Uses the publically available e621 database dumps do download all available posts from the website.
+Uses the publically available e621 database dumps to download all available posts from the website.
 Reimplements functions such as tag search and pools for offline usage.
 All downloaded files will be compressed further to reduce archive file size.
 Uses BPG to compress images and HEVC for videos
