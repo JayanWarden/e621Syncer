@@ -56,8 +56,4 @@ The VLC native library path is hardcoded in JWDiscoveryStrategy.java , it will N
 Download e621Syncer.sql and import the script into your favourite database tool. I use MariaDB during development.
 
 Clone this project and supply all dependencies, run it in your favourite IDE.
-Or simply download a release and run it that way.
-
-## TODO
-
-- Videos don't play back yet. Possible VLC integration?
+Or simply download a release and run it that way. -> https://github.com/JayanWarden/e621Syncer/releases
