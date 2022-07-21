@@ -483,8 +483,4 @@ public class PlayerControlsPanel extends JPanel {
 		chapterLabel.invalidate();
 		validate();
 	}
-
-	private void updateVolume(int value) {
-		volumeSlider.setValue(value);
-	}
 }

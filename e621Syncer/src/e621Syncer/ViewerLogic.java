@@ -448,12 +448,11 @@ public class ViewerLogic {
 				});
 
 				oMain.panelMainWindow.add(label);
-				oMain.panelMainWindow.repaint();
+				oMain.frmE.repaint();
 			} catch (Exception e) {
 				oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
-		oMain.frmE.repaint();
 	}
 
 	/**
