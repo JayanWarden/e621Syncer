@@ -53,7 +53,10 @@ The VLC native library path is hardcoded in JWDiscoveryStrategy.java , it will N
 
 ## How to run this project
 
-Download e621Syncer.sql and import the script into your favourite database tool. I use MariaDB during development.
+Set up a MySQL Database and set the setting for the DB, like user, password, table name etc, in the UI. 
+Save the settings, reload the program. It should automatically import tables and start downloading a fresh DB dump from e621. 
+Starting the Downloader and Converter Threads in the Settings panel starts the import process from e621. 
+Syncing the whole of e621 to local takes about 40 days total.
 
 Clone this project and supply all dependencies, run it in your favourite IDE.
 Or simply download a release and run it that way. -> https://github.com/JayanWarden/e621Syncer/releases
