@@ -684,12 +684,18 @@ public class ViewerLogic {
 				if (oMain.oConf.bResizeImageLoading) {
 					Dimension dPanel = new Dimension(
 							oMain.frmE.getWidth() - oMain.panelSidebar.getWidth() - oMain.panelInfos.getWidth(),
-							oMain.frmE.getHeight() - oMain.panelButtonBar.getHeight() - oMain.panelNorth.getHeight() - 106);
+							oMain.frmE.getHeight() - oMain.panelButtonBar.getHeight() - oMain.panelNorth.getHeight()
+									- 106);
 
-					Dimension d = ConverterThread
-							.getScaledDimension(new Dimension(o.oImage.getWidth(), o.oImage.getHeight()), dPanel);
-					JLabel label = new JLabel(
-							new ImageIcon(o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH)));
+					JLabel label;
+					if (o.oImage.getWidth() < dPanel.width && o.oImage.getHeight() < dPanel.height) {
+						label = new JLabel(new ImageIcon(o.oImage));
+					} else {
+						Dimension d = ConverterThread
+								.getScaledDimension(new Dimension(o.oImage.getWidth(), o.oImage.getHeight()), dPanel);
+						label = new JLabel(new ImageIcon(
+								o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH)));
+					}
 					panel.add(label);
 				} else {
 					JLabel label = new JLabel(new ImageIcon(o.oImage));
@@ -716,13 +722,21 @@ public class ViewerLogic {
 		File oSource = new File(oMain.oConf.strArchivePath + "\\" + o.strMD5.substring(0, 2) + "\\"
 				+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".swf_");
 		oMain.oLog.log(strName + " loadSWF " + oSource.getAbsolutePath(), null, 5, LogType.NORMAL);
+		if (oTrackedCenter != null) {
+			oMain.panelViewer.remove(oTrackedCenter);
+			oTrackedCenter = null;
+		}
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.GRAY);
 		if (oSource.exists()) {
 			JLabel label = new JLabel("NO FLASH PLUGIN AVAILABLE");
-			oMain.panelMainWindow.add(label);
+			panel.add(label);
 		} else {
 			JLabel label = new JLabel("FAILED TO LOAD SWF");
-			oMain.panelMainWindow.add(label);
+			panel.add(label);
 		}
+		oMain.panelViewer.add(panel, BorderLayout.CENTER);
+		oTrackedCenter = panel;
 		oMain.frmE.repaint();
 	}
 
