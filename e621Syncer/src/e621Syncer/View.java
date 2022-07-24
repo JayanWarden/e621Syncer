@@ -744,7 +744,7 @@ public class View {
 
 	private void listNewest() {
 		oUILogic.iQueryOffset = 0;
-		oUILogic.listNewest();
+		oUILogic.listNewest(0);
 	}
 
 	private void previous() {
