@@ -45,7 +45,7 @@ import e621Syncer.logic.Config;
 import e621Syncer.logic.TagObject;
 import e621Syncer.threads.ConverterThread;
 import e621Syncer.threads.DBSyncThread;
-import e621Syncer.threads.DownloadThread;
+import e621Syncer.threads.DownloadManagerThread;
 import e621Syncer.threads.LoggerThread;
 import e621Syncer.threads.UIThread;
 import net.miginfocom.swing.MigLayout;
@@ -56,7 +56,7 @@ public class View {
 	private JButton btnDownloader, btnConverter, btnGetNewest, btnBack, btnSaveSettings;
 
 	public Database oDB;
-	public DownloadThread oDown;
+	public DownloadManagerThread oDown;
 	public ArrayList<ConverterThread> aConverters = new ArrayList<ConverterThread>();
 	public Config oConf;
 	public DBSyncThread oDBS;
@@ -578,7 +578,7 @@ public class View {
 		Thread oDBSThread = new Thread(oDBS, "e621 DB Sync Thread");
 		oDBSThread.start();
 
-		oDown = new DownloadThread(this);
+		oDown = new DownloadManagerThread(this);
 
 		for (int i = 1; i <= oConf.iConverterThreads; i++) {
 			ConverterThread o = new ConverterThread(this, i - 1);

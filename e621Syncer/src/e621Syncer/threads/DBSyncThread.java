@@ -54,23 +54,25 @@ public class DBSyncThread implements Runnable {
 	@Override
 	public void run() {
 		String strResume = getResume();
-		switch (strResume) {
-		case "download":
-			checkDumpDate();
-			download();
-		case "unzip":
-			unzip();
-		case "importTags":
-			importGeneral("importTags");
-		case "importImplications":
-			importGeneral("importImplications");
-		case "importAliases":
-			importGeneral("importAliases");
-		case "importPosts":
-			importGeneral("importPosts");
-		case "importPools":
-			importGeneral("importPools");
-			setResume("NONE");
+		if (strResume != null) {
+			switch (strResume) {
+			case "download":
+				checkDumpDate();
+				download();
+			case "unzip":
+				unzip();
+			case "importTags":
+				importGeneral("importTags");
+			case "importImplications":
+				importGeneral("importImplications");
+			case "importAliases":
+				importGeneral("importAliases");
+			case "importPosts":
+				importGeneral("importPosts");
+			case "importPools":
+				importGeneral("importPools");
+				setResume("NONE");
+			}
 		}
 
 		while (true) {
@@ -432,7 +434,8 @@ public class DBSyncThread implements Runnable {
 		} catch (Exception e) {
 			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
-		oMain.oLog.log(strName + " countEntries " + oFile.getName() + " has " + iResult + " lines", null, 5, LogType.NORMAL);
+		oMain.oLog.log(strName + " countEntries " + oFile.getName() + " has " + iResult + " lines", null, 5,
+				LogType.NORMAL);
 		System.gc();
 		System.gc();
 		return iResult;

@@ -1,10 +1,14 @@
 package e621Syncer.db;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -29,6 +33,8 @@ public class Database implements Runnable {
 	public LinkedBlockingQueue<DatabaseThread> aFreeWorkers = new LinkedBlockingQueue<DatabaseThread>();
 	public boolean bRunning = true;
 	public boolean bExited = false;
+
+	private String strDBVersion = "1.0";
 
 	/**
 	 * Create the main database class
@@ -67,6 +73,8 @@ public class Database implements Runnable {
 			t.start();
 			aDBWorkers.add(o);
 		}
+
+		testDB();
 	}
 
 	/**
@@ -125,6 +133,60 @@ public class Database implements Runnable {
 			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
 		o.bFinished = true;
+	}
+
+	/**
+	 * Test DB and whether we need to create stuff
+	 */
+	private void testDB() {
+		try (Connection con = ds.getConnection();) {
+
+			PreparedStatement p = con
+					.prepareStatement("SELECT count(*) FROM information_schema.tables WHERE table_name = ? LIMIT 1;");
+			p.setString(1, "posts");
+			ResultSet rs = p.executeQuery();
+			rs.next();
+
+			boolean bExists = rs.getInt(1) != 0;
+			if (bExists) {
+				p = con.prepareStatement("SELECT v FROM system WHERE k = ?");
+				p.setString(1, "version");
+				rs = p.executeQuery();
+				if (rs.next()) {
+					String strVersion = rs.getString("v");
+					if(!strVersion.equals(strDBVersion)) {
+						//TODO: Upgrade logic, in case of DB schema changes
+					}
+				} else {
+					oMain.oLog.log(strName + " testDB FAILED to get DB version", null, 0, LogType.NORMAL);
+				}
+			} else {
+				Scanner s = new Scanner(new File("lib/e621sync.sql"));
+				s.useDelimiter("(;(\r)?\n)|(--\n)");
+				Statement st = null;
+				try {
+					st = con.createStatement();
+					while (s.hasNext()) {
+						String line = s.next();
+						if (line.startsWith("/*!") && line.endsWith("*/")) {
+							int i = line.indexOf(' ');
+							line = line.substring(i + 1, line.length() - " */".length());
+						}
+
+						if (line.trim().length() > 0) {
+							st.execute(line);
+						}
+					}
+
+					st.execute("INSERT INTO system (k, v) VALUES (\"version\", \"" + strDBVersion + "\")");
+				} finally {
+					if (st != null)
+						st.close();
+				}
+			}
+		} catch (SQLException | FileNotFoundException e) {
+			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
+		}
 	}
 
 	/**
