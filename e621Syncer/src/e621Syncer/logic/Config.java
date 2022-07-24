@@ -14,7 +14,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.5.3";
+	public String strVersion = "0.5.4";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -29,7 +29,7 @@ public class Config {
 	public int iNumDBThreads = 16;
 	public int iSyncThreadTimeout = 1000 * 60 * 60;
 
-	public int iBPGQP = 26;
+	public int iBPGQP = 25;
 	public int iBPGSpeed = 9;
 	public int iJPGQ = 95;
 	public int iHEVCCQP = 25;
@@ -37,6 +37,7 @@ public class Config {
 	public int iLogVerbosity = 5;
 	public boolean bLogMessagesToConsole = false;
 	public boolean bLogExceptionsToConsole = true;
+	public boolean bResizeImageLoading = true;
 
 	public View oMain;
 
@@ -70,6 +71,8 @@ public class Config {
 		oMain.spinnerConverterThreads.setValue(iConverterThreads);
 		oMain.chckbxLogExceptionsToConsole.setSelected(bLogExceptionsToConsole);
 		oMain.chckbxLogMessagesToConsole.setSelected(bLogMessagesToConsole);
+		oMain.chckbxResizeImage.setSelected(bResizeImageLoading);
+		
 
 		if (strAppID == null) {
 			strAppID = generateRandomString(16);
@@ -145,6 +148,8 @@ public class Config {
 				bLogExceptionsToConsole = strValue.equals("T");
 			} else if (strData.startsWith("LGM:")) {
 				bLogMessagesToConsole = strValue.equals("T");
+			} else if(strData.startsWith("RSZ:")) {
+				bResizeImageLoading = strValue.equals("T");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -165,6 +170,7 @@ public class Config {
 		iConverterThreads = (Integer) oMain.spinnerConverterThreads.getValue();
 		bLogExceptionsToConsole = oMain.chckbxLogExceptionsToConsole.isSelected();
 		bLogMessagesToConsole = oMain.chckbxLogMessagesToConsole.isSelected();
+		bResizeImageLoading = oMain.chckbxResizeImage.isSelected();
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("e621Syncer config file" + System.lineSeparator());
@@ -188,6 +194,7 @@ public class Config {
 		sb.append("LGV:" + iLogVerbosity + System.lineSeparator());
 		sb.append("LGE:" + (bLogExceptionsToConsole ? "T" : "F") + System.lineSeparator());
 		sb.append("LGM:" + (bLogMessagesToConsole ? "T" : "F") + System.lineSeparator());
+		sb.append("RSZ:" + (bResizeImageLoading ? "T" : "F") + System.lineSeparator());
 
 		try {
 			FileWriter fw = new FileWriter(oConfigFile);
@@ -228,18 +235,18 @@ public class Config {
 	 */
 	public static String convertBitrate(long lBitrate) {
 		if (lBitrate < 10000)
-			return lBitrate + "b";
+			return lBitrate + "B";
 		lBitrate /= 1000;
 		if (lBitrate < 10000)
-			return lBitrate + "kb";
+			return lBitrate + "KiB";
 		lBitrate /= 1000;
 		if (lBitrate < 10000)
-			return lBitrate + "mb";
+			return lBitrate + "MiB";
 		lBitrate /= 1000;
 		if (lBitrate < 10000)
-			return lBitrate + "gb";
+			return lBitrate + "GiB";
 		lBitrate /= 1000;
-		return lBitrate + "tb";
+		return lBitrate + "TiB";
 	}
 
 	/**

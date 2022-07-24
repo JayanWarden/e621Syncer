@@ -80,7 +80,7 @@ public class View {
 	public JPasswordField passwordFieldDB;
 	public JButton btnLeft, btnRight, btnNewButton, btnNewButton_1;
 	public JSpinner spinnerConverterThreads;
-	public JCheckBox chckbxLogMessagesToConsole, chckbxLogExceptionsToConsole;
+	public JCheckBox chckbxLogMessagesToConsole, chckbxLogExceptionsToConsole, chckbxResizeImage;
 
 	public DefaultListModel<TagObject> modelTags = new DefaultListModel<>();
 	public JList<TagObject> listSidebar;
@@ -302,6 +302,16 @@ public class View {
 		lblMode = new JLabel("~");
 		panelButtonBar.add(lblMode);
 
+		chckbxResizeImage = new JCheckBox("Fit Img to Screen");
+		chckbxResizeImage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				oConf.save();
+			}
+		});
+		chckbxResizeImage.setToolTipText("Should Images be resized to fit to the current app screen size?");
+		chckbxResizeImage.setSelected(true);
+		panelButtonBar.add(chckbxResizeImage);
+
 		panelInfos = new JPanel();
 		panelInfos.setBackground(Color.GRAY);
 		panelViewer.add(panelInfos, BorderLayout.EAST);
@@ -403,7 +413,8 @@ public class View {
 				new MigLayout("", "[][][][grow 0][][][growprio 0,grow 0]", "[][][][][][][][][][][][][][grow]"));
 
 		btnDownloader = new JButton("Start Downloader");
-		btnDownloader.setToolTipText("Starts downloader threads.\r\nToggle Button, will stop them when they are already started");
+		btnDownloader.setToolTipText(
+				"Starts downloader threads.\r\nToggle Button, will stop them when they are already started");
 		btnDownloader.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				toggleDownloadThread();
@@ -416,7 +427,8 @@ public class View {
 		panelSettings.add(lblDownladerStatus, "cell 1 0 5 1");
 
 		btnConverter = new JButton("Start Converter");
-		btnConverter.setToolTipText("Starts Converter threads.\r\nToggle Button, will stop them when they are already started");
+		btnConverter.setToolTipText(
+				"Starts Converter threads.\r\nToggle Button, will stop them when they are already started");
 		btnConverter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				toggleConverterThread();
@@ -459,11 +471,13 @@ public class View {
 		panelSettings.add(chckbxLogExceptionsToConsole, "cell 5 4");
 
 		lblNewLabel_16 = new JLabel("Database Name:");
-		lblNewLabel_16.setToolTipText("Database / Schema name for this tool to use.\r\nIt would be easiest to simply create a database with the same \r\nname as the correcponding user");
+		lblNewLabel_16.setToolTipText(
+				"Database / Schema name for this tool to use.\r\nIt would be easiest to simply create a database with the same \r\nname as the correcponding user");
 		panelSettings.add(lblNewLabel_16, "cell 0 5,alignx right");
 
 		textFieldDBName = new JTextField();
-		textFieldDBName.setToolTipText("Database / Schema name for this tool to use.\r\nIt would be easiest to simply create a database with the same \r\nname as the correcponding user");
+		textFieldDBName.setToolTipText(
+				"Database / Schema name for this tool to use.\r\nIt would be easiest to simply create a database with the same \r\nname as the correcponding user");
 		panelSettings.add(textFieldDBName, "cell 1 5,alignx left");
 		textFieldDBName.setColumns(16);
 
@@ -472,12 +486,14 @@ public class View {
 		panelSettings.add(chckbxLogMessagesToConsole, "cell 5 5");
 
 		lblNewLabel_15 = new JLabel("Username:");
-		lblNewLabel_15.setToolTipText("Username for this app to log on to the DB server.\r\nMust have all permissions on the provided Database Name");
+		lblNewLabel_15.setToolTipText(
+				"Username for this app to log on to the DB server.\r\nMust have all permissions on the provided Database Name");
 		lblNewLabel_15.setHorizontalAlignment(SwingConstants.LEFT);
 		panelSettings.add(lblNewLabel_15, "cell 0 6,alignx trailing");
 
 		textFieldDBUsername = new JTextField();
-		textFieldDBUsername.setToolTipText("Username for this app to log on to the DB server.\r\nMust have all permissions on the provided Database Name");
+		textFieldDBUsername.setToolTipText(
+				"Username for this app to log on to the DB server.\r\nMust have all permissions on the provided Database Name");
 		panelSettings.add(textFieldDBUsername, "flowx,cell 1 6,alignx left");
 		textFieldDBUsername.setColumns(16);
 
@@ -491,11 +507,13 @@ public class View {
 		panelSettings.add(passwordFieldDB, "cell 3 6,alignx left");
 
 		lblNewLabel_19 = new JLabel("Temp Path:");
-		lblNewLabel_19.setToolTipText("Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
+		lblNewLabel_19.setToolTipText(
+				"Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
 		panelSettings.add(lblNewLabel_19, "cell 0 7,alignx trailing");
 
 		textFieldTempPath = new JTextField();
-		textFieldTempPath.setToolTipText("Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
+		textFieldTempPath.setToolTipText(
+				"Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
 		panelSettings.add(textFieldTempPath, "cell 1 7,alignx left");
 		textFieldTempPath.setColumns(32);
 
@@ -524,11 +542,13 @@ public class View {
 		panelSettings.add(lblNewLabel_22, "cell 0 9");
 
 		lblNewLabel_21 = new JLabel("Converter thread count:");
-		lblNewLabel_21.setToolTipText("How many converter threads should we spin up?\r\nOne thread can fully load a system, especially during high-res video conversion.\r\nUpper limit of 8");
+		lblNewLabel_21.setToolTipText(
+				"How many converter threads should we spin up?\r\nOne thread can fully load a system, especially during high-res video conversion.\r\nUpper limit of 8");
 		panelSettings.add(lblNewLabel_21, "cell 0 10,alignx trailing");
 
 		spinnerConverterThreads = new JSpinner();
-		spinnerConverterThreads.setToolTipText("How many converter threads should we spin up?\r\nOne thread can fully load a system, especially during high-res video conversion.\r\nUpper limit of 8");
+		spinnerConverterThreads.setToolTipText(
+				"How many converter threads should we spin up?\r\nOne thread can fully load a system, especially during high-res video conversion.\r\nUpper limit of 8");
 		spinnerConverterThreads.setModel(new SpinnerNumberModel(1, 1, 8, 1));
 		panelSettings.add(spinnerConverterThreads, "cell 1 10");
 		panelSettings.add(btnSaveSettings, "cell 0 11");
@@ -645,6 +665,12 @@ public class View {
 								case 30:
 									previous();
 									break;
+								case 33:
+									toggleFitToScreen();
+									break;
+								case 19:
+									reloadPost();
+									break;
 								}
 							} else {
 								if (e.getKeyCode() == 1) {
@@ -699,6 +725,20 @@ public class View {
 				}
 				btnConverter.setText("Stop Converter");
 			}
+		}
+	}
+
+	/**
+	 * Toggles the checkbox Fit Img to Screen
+	 */
+	private void toggleFitToScreen() {
+		chckbxResizeImage.setSelected(!chckbxResizeImage.isSelected());
+		oConf.save();
+	}
+
+	private void reloadPost() {
+		if (oUILogic.strMode.equals("post")) {
+			oUILogic.loadPost(oUILogic.oCurrentPost);
 		}
 	}
 

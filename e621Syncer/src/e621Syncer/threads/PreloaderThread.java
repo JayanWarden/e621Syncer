@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import e621Syncer.View;
@@ -245,7 +246,7 @@ public class PreloaderThread implements Runnable {
 			}
 
 			if (oTarget.exists()) {
-				o.oImage = new ImageIcon(oTarget.getAbsolutePath());
+				o.oImage = ImageIO.read(oTarget);
 			}
 
 			oTarget.delete();
@@ -270,7 +271,7 @@ public class PreloaderThread implements Runnable {
 					+ o.strMD5.substring(2, 4) + "\\" + o.strMD5 + ".gif");
 			o.iFilesize = oSource.length();
 			if (oSource.exists()) {
-				o.oImage = new ImageIcon(oSource.getAbsolutePath());
+				o.oGIF = new ImageIcon(oSource.getAbsolutePath());
 				o.bImage = true;
 			}
 			return true;

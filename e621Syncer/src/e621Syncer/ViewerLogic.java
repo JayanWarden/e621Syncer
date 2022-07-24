@@ -3,6 +3,7 @@ package e621Syncer;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -31,6 +32,7 @@ import e621Syncer.logic.LogType;
 import e621Syncer.logic.PoolObject;
 import e621Syncer.logic.PostObject;
 import e621Syncer.logic.TagObject;
+import e621Syncer.threads.ConverterThread;
 import e621Syncer.threads.PreloaderThread;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery;
@@ -116,7 +118,7 @@ public class ViewerLogic {
 
 		oMain.oLog.log(strName + " VLC init finished", null, 0, LogType.NORMAL);
 		System.out.println(strName + " VLC init finished");
-		
+
 		loadPools();
 	}
 
@@ -620,6 +622,8 @@ public class ViewerLogic {
 					oMain.modelTags.addElement(t);
 				}
 			}
+			oMain.panelSidebar.revalidate();
+			oMain.panelInfos.revalidate();
 
 			strMode = "post";
 			oMain.panelMainWindow.removeAll();
@@ -667,12 +671,34 @@ public class ViewerLogic {
 		panel.addMouseMotionListener(ma);
 		panel.setBackground(Color.GRAY);
 
-		if (o.oImage != null) {
-			JLabel label = new JLabel(o.oImage);
-			panel.add(label);
+		if (bGif) {
+			if (o.oGIF != null) {
+				JLabel label = new JLabel(o.oGIF);
+				panel.add(label);
+			} else {
+				JLabel label = new JLabel("FAILED TO LOAD " + (bGif ? "GIF" : "BPG"));
+				panel.add(label);
+			}
 		} else {
-			JLabel label = new JLabel("FAILED TO LOAD " + (bGif ? "GIF" : "BPG"));
-			panel.add(label);
+			if (o.oImage != null) {
+				if (oMain.oConf.bResizeImageLoading) {
+					Dimension dPanel = new Dimension(
+							oMain.frmE.getWidth() - oMain.panelSidebar.getWidth() - oMain.panelInfos.getWidth(),
+							oMain.frmE.getHeight() - oMain.panelButtonBar.getHeight() - oMain.panelNorth.getHeight() - 106);
+
+					Dimension d = ConverterThread
+							.getScaledDimension(new Dimension(o.oImage.getWidth(), o.oImage.getHeight()), dPanel);
+					JLabel label = new JLabel(
+							new ImageIcon(o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH)));
+					panel.add(label);
+				} else {
+					JLabel label = new JLabel(new ImageIcon(o.oImage));
+					panel.add(label);
+				}
+			} else {
+				JLabel label = new JLabel("FAILED TO LOAD " + (bGif ? "GIF" : "BPG"));
+				panel.add(label);
+			}
 		}
 		oMain.panelViewer.remove(oMain.panelMainWindow);
 		oMain.panelViewer.add(pane, BorderLayout.CENTER);
@@ -810,14 +836,14 @@ public class ViewerLogic {
 	 */
 	private void startPreloading() {
 		if (!bPreloadingStatus) {
-			while(oPreloaderLeft.bExecuting || oPreloaderRight.bExecuting) {
+			while (oPreloaderLeft.bExecuting || oPreloaderRight.bExecuting) {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			
+
 			aQueueLeft.clear();
 			aQueueRight.clear();
 			oPreloaderLeft.iID = oCurrentPost.id;
