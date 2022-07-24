@@ -60,3 +60,12 @@ Syncing the whole of e621 to local takes about 40 days total.
 
 Clone this project and supply all dependencies, run it in your favourite IDE.
 Or simply download a release and run it that way. -> https://github.com/JayanWarden/e621Syncer/releases
+
+## Keyboard Shortcuts
+
+###In the Viewer panel
+- Esc : Focus main paniel, i.E. unfocus Tag Textfield
+- A : "Left" Button
+- D : "Right" Button
+- F : Toggle Fit-to-Screen
+- R : Refresh current post
