@@ -32,7 +32,6 @@ import e621Syncer.logic.LogType;
 import e621Syncer.logic.PoolObject;
 import e621Syncer.logic.PostObject;
 import e621Syncer.logic.TagObject;
-import e621Syncer.threads.ConverterThread;
 import e621Syncer.threads.PreloaderThread;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery;
@@ -47,6 +46,8 @@ public class ViewerLogic {
 	public View oMain;
 
 	public int iQueryOffset = 0;
+
+	private Dimension oViewportSize = new Dimension(0, 0);
 
 	public AtomicBoolean bThreadBusy = new AtomicBoolean(false);
 
@@ -199,10 +200,10 @@ public class ViewerLogic {
 	 * Lists the newest posts sorted by ID in the view window
 	 */
 	@SuppressWarnings("unchecked")
-	public void listNewest() {
+	public void listNewest(int i) {
 		if (!bThreadBusy.get()) {
 			stopPreloading();
-			iQueryOffset = 0;
+			iQueryOffset = i;
 			bTagSearch = false;
 			oMain.panelInfos.setVisible(false);
 			oMain.panelSidebar.setVisible(false);
@@ -556,7 +557,7 @@ public class ViewerLogic {
 					stopPreloading();
 					loadItems(null);
 				} else {
-					listNewest();
+					listNewest(iQueryOffset);
 				}
 			}
 		}
@@ -571,6 +572,8 @@ public class ViewerLogic {
 		if (!bThreadBusy.get()) {
 			oCurrentPost = o;
 			startPreloading();
+			oPreloaderLeft.bRecheckResize = true;
+			oPreloaderRight.bRecheckResize = true;
 
 			if (bPlayingVideo) {
 				VLCEmbed.mediaPlayer().controls().stop();
@@ -627,6 +630,9 @@ public class ViewerLogic {
 
 			strMode = "post";
 			oMain.panelMainWindow.removeAll();
+			setViewportSize(new Dimension(
+					oMain.frmE.getWidth() - oMain.panelSidebar.getWidth() - oMain.panelInfos.getWidth(),
+					oMain.frmE.getHeight() - oMain.panelButtonBar.getHeight() - oMain.panelNorth.getHeight() - 106));
 			if (o.strExtConv.equals("bpg")) {
 				loadImage(o, false);
 			} else if (o.strExtConv.equals("gif")) {
@@ -682,19 +688,28 @@ public class ViewerLogic {
 		} else {
 			if (o.oImage != null) {
 				if (oMain.oConf.bResizeImageLoading) {
-					Dimension dPanel = new Dimension(
-							oMain.frmE.getWidth() - oMain.panelSidebar.getWidth() - oMain.panelInfos.getWidth(),
-							oMain.frmE.getHeight() - oMain.panelButtonBar.getHeight() - oMain.panelNorth.getHeight()
-									- 106);
-
 					JLabel label;
+					Dimension dPanel = getViewportSize();
 					if (o.oImage.getWidth() < dPanel.width && o.oImage.getHeight() < dPanel.height) {
 						label = new JLabel(new ImageIcon(o.oImage));
 					} else {
-						Dimension d = ConverterThread
-								.getScaledDimension(new Dimension(o.oImage.getWidth(), o.oImage.getHeight()), dPanel);
-						label = new JLabel(new ImageIcon(
-								o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH)));
+
+						while (o.bResizeLock) {
+							try {
+								Thread.sleep(1);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+
+						if (o.bResized) {
+							label = new JLabel(new ImageIcon(o.oResized));
+						} else {
+							Dimension d = Config.getScaledDimension(
+									new Dimension(o.oImage.getWidth(), o.oImage.getHeight()), dPanel);
+							Config.resizeImage(o, d);
+							label = new JLabel(new ImageIcon(o.oResized));
+						}
 					}
 					panel.add(label);
 				} else {
@@ -868,6 +883,28 @@ public class ViewerLogic {
 			oPreloaderLeft.bReachedEnd = false;
 
 			bPreloadingStatus = true;
+		}
+	}
+
+	/**
+	 * Synchronized access on this classes' viewport Dimension object
+	 * 
+	 * @return - Dimension viewport size
+	 */
+	public Dimension getViewportSize() {
+		synchronized (oViewportSize) {
+			return new Dimension(oViewportSize.width, oViewportSize.height);
+		}
+	}
+
+	/**
+	 * Synchronizes access on this classes' viewport Dimension object
+	 * 
+	 * @param d - Dimension new viewport size
+	 */
+	public void setViewportSize(Dimension d) {
+		synchronized (oViewportSize) {
+			oViewportSize = new Dimension(d.width, d.height);
 		}
 	}
 

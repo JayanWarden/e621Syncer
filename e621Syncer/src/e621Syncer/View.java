@@ -777,8 +777,8 @@ public class View {
 	}
 
 	private void tagClicked() {
-		textFieldSearch.setText(
-				textFieldSearch.getText() + " " + modelTags.getElementAt(listSidebar.getSelectedIndex()).strTag);
+		textFieldSearch.setText(textFieldSearch.getText().length() == 0 ? ""
+				: (textFieldSearch.getText() + " ") + modelTags.getElementAt(listSidebar.getSelectedIndex()).strTag);
 	}
 
 	private void saveSettings() {

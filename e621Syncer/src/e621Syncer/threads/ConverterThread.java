@@ -255,7 +255,7 @@ public class ConverterThread implements Runnable {
 			BufferedImage oOrig = ImageIO.read(oFile);
 			Dimension imgSize = new Dimension(oOrig.getWidth(), oOrig.getHeight());
 			Dimension thumbSize = new Dimension(128, 128);
-			Dimension resized = getScaledDimension(imgSize, thumbSize);
+			Dimension resized = Config.getScaledDimension(imgSize, thumbSize);
 			int iTargetWidth = resized.width;
 			int iTargetHeight = resized.height;
 
@@ -387,35 +387,6 @@ public class ConverterThread implements Runnable {
 		o.oPostObjectQuery1 = o.oResultPostObject1;
 		o.command = DBCommand.ACK_CONVERT;
 		putInQueue(o);
-	}
-
-	/**
-	 * Helper function to generate the correct dimension for the thumbnail crop
-	 * 
-	 * @param imgSize  - Dimension original image size
-	 * @param boundary - Dimension bounding box for the maximum size
-	 * @return Dimension new thumbnail size with correct aspect ratio
-	 */
-	public static Dimension getScaledDimension(Dimension imgSize, Dimension boundary) {
-
-		int original_width = imgSize.width;
-		int original_height = imgSize.height;
-		int bound_width = boundary.width;
-		int bound_height = boundary.height;
-		int new_width = original_width;
-		int new_height = original_height;
-
-		if (original_width > bound_width) {
-			new_width = bound_width;
-			new_height = (new_width * original_height) / original_width;
-		}
-
-		if (new_height > bound_height) {
-			new_height = bound_height;
-			new_width = (new_height * original_width) / original_height;
-		}
-
-		return new Dimension(new_width, new_height);
 	}
 
 	private void putInQueue(DBObject o) {

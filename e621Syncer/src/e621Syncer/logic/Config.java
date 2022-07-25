@@ -1,5 +1,6 @@
 package e621Syncer.logic;
 
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +15,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.5.4.2";
+	public String strVersion = "0.5.5";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -265,5 +266,46 @@ public class Config {
 			buffer.append((char) randomLimitedInt);
 		}
 		return buffer.toString();
+	}
+	
+	/**
+	 * Resize a loaded image in the given PostObject to a maximum viewport size, retaining aspect ratio
+	 * @param o - PostObject to resize
+	 * @param dViewport - Dimension maximum viewport size
+	 */
+	public static void resizeImage(PostObject o, Dimension dViewport) {
+		Dimension d = getScaledDimension(new Dimension(o.oImage.getWidth(), o.oImage.getHeight()),
+				dViewport);
+		o.oResized = o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH);
+		o.bResized = true;
+	}
+	
+	/**
+	 * Helper function to generate the correct dimension for the thumbnail crop
+	 * 
+	 * @param imgSize  - Dimension original image size
+	 * @param boundary - Dimension bounding box for the maximum size
+	 * @return Dimension new thumbnail size with correct aspect ratio
+	 */
+	public static Dimension getScaledDimension(Dimension imgSize, Dimension boundary) {
+
+		int original_width = imgSize.width;
+		int original_height = imgSize.height;
+		int bound_width = boundary.width;
+		int bound_height = boundary.height;
+		int new_width = original_width;
+		int new_height = original_height;
+
+		if (original_width > bound_width) {
+			new_width = bound_width;
+			new_height = (new_width * original_height) / original_width;
+		}
+
+		if (new_height > bound_height) {
+			new_height = bound_height;
+			new_width = (new_height * original_width) / original_height;
+		}
+
+		return new Dimension(new_width, new_height);
 	}
 }

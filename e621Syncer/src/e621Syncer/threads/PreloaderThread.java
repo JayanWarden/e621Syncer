@@ -1,5 +1,6 @@
 package e621Syncer.threads;
 
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,9 @@ public class PreloaderThread implements Runnable {
 	private String strSQL2 = " AND NOT rename_ext = 0 GROUP BY id ORDER BY id ";
 	private String strSQL3 = " LIMIT 1";
 
+	private Dimension oTrackedDimension = new Dimension(0, 0);
+	public boolean bRecheckResize = false;
+
 	/**
 	 * Create a new Preloader Thread
 	 * 
@@ -49,12 +53,12 @@ public class PreloaderThread implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-
 			if (bRunning) {
 				bExecuting = true;
 				try {
 					checkSize();
 					preload();
+					resize();
 				} catch (Exception e) {
 					oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 				}
@@ -296,6 +300,40 @@ public class PreloaderThread implements Runnable {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * If the signal has been received, check if the first element in the queue
+	 */
+	private void resize() {
+		if (bRecheckResize && oViewerLogic.oMain.oConf.bResizeImageLoading) {
+			bRecheckResize = false;
+			boolean bSizeCheck = false;
+			Dimension oCheck = oViewerLogic.getViewportSize();
+			if (Math.abs(oTrackedDimension.height - oCheck.height) > 5
+					|| Math.abs(oTrackedDimension.width - oCheck.width) > 5) {
+				bSizeCheck = true;
+				oTrackedDimension = oCheck;
+			}
+
+			PostObject o = null;
+			if (bRightLoader) {
+				if (oViewerLogic.aQueueLeft.size() > 0) {
+					o = oViewerLogic.aQueueLeft.peek();
+				}
+			} else {
+				if (oViewerLogic.aQueueRight.size() > 0) {
+					o = oViewerLogic.aQueueRight.peek();
+				}
+			}
+			if (o != null) {
+				if ((o.bResized && bSizeCheck) || (!o.bResized)) {
+					o.bResizeLock = true;
+					Config.resizeImage(o, oTrackedDimension);
+					o.bResizeLock = false;
+				}
+			}
+		}
 	}
 
 	private void putInQueue(DBObject o) {
