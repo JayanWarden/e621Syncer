@@ -693,7 +693,6 @@ public class ViewerLogic {
 					if (o.oImage.getWidth() < dPanel.width && o.oImage.getHeight() < dPanel.height) {
 						label = new JLabel(new ImageIcon(o.oImage));
 					} else {
-
 						while (o.bResizeLock) {
 							try {
 								Thread.sleep(1);
