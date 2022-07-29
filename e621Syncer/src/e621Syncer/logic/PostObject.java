@@ -1,6 +1,5 @@
 package e621Syncer.logic;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
@@ -26,7 +25,7 @@ public class PostObject {
 	public boolean bResized = false;
 	public boolean bResizeLock = false;
 	public BufferedImage oImage;
-	public Image oResized;
+	public ImageIcon oResized;
 	public ImageIcon oGIF;
 
 }

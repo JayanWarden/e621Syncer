@@ -19,6 +19,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -78,7 +79,7 @@ public class View {
 	public JTextField textFieldSearch, textFieldDBHostname, textFieldDBPort, textFieldDBName, textFieldDBUsername,
 			textFieldTempPath, textFieldArchivePath;
 	public JPasswordField passwordFieldDB;
-	public JButton btnLeft, btnRight, btnNewButton, btnNewButton_1;
+	public JButton btnLeft, btnRight, btnNewButton, btnNewButton_1, btnFileChooserTempPath, btnFileChooserArchivePath;
 	public JSpinner spinnerConverterThreads;
 	public JCheckBox chckbxLogMessagesToConsole, chckbxLogExceptionsToConsole, chckbxResizeImage;
 
@@ -514,7 +515,7 @@ public class View {
 		textFieldTempPath = new JTextField();
 		textFieldTempPath.setToolTipText(
 				"Temporary path used for downloaded files and files that are in the process of being converted.\r\nCan use any folder, please provide an absolute path");
-		panelSettings.add(textFieldTempPath, "cell 1 7,alignx left");
+		panelSettings.add(textFieldTempPath, "flowx,cell 1 7,alignx left");
 		textFieldTempPath.setColumns(32);
 
 		lblNewLabel_20 = new JLabel("Archive Path:");
@@ -523,7 +524,7 @@ public class View {
 
 		textFieldArchivePath = new JTextField();
 		textFieldArchivePath.setToolTipText("Path used to store all downloaded and converted files on.");
-		panelSettings.add(textFieldArchivePath, "cell 1 8,alignx left");
+		panelSettings.add(textFieldArchivePath, "flowx,cell 1 8,alignx left");
 		textFieldArchivePath.setColumns(32);
 
 		lblConverterStatus = new JLabel("~~~~");
@@ -573,6 +574,38 @@ public class View {
 
 		listException = new JList<String>(modelException);
 		scrollPaneExceptions.setViewportView(listException);
+
+		btnFileChooserTempPath = new JButton("Select Path");
+		btnFileChooserTempPath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser c = new JFileChooser();
+				c.setCurrentDirectory(new java.io.File("."));
+				c.setDialogTitle("Select temp file path");
+				c.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				c.setAcceptAllFileFilterUsed(false);
+				if (c.showOpenDialog(frmE) == JFileChooser.APPROVE_OPTION) {
+					textFieldTempPath.setText(c.getSelectedFile().getAbsolutePath());
+					oConf.save();
+				}
+			}
+		});
+		panelSettings.add(btnFileChooserTempPath, "cell 1 7");
+
+		btnFileChooserArchivePath = new JButton("Select Path");
+		btnFileChooserArchivePath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser c = new JFileChooser();
+				c.setCurrentDirectory(new java.io.File("."));
+				c.setDialogTitle("Select download archive path");
+				c.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				c.setAcceptAllFileFilterUsed(false);
+				if (c.showOpenDialog(frmE) == JFileChooser.APPROVE_OPTION) {
+					textFieldArchivePath.setText(c.getSelectedFile().getAbsolutePath());
+					oConf.save();
+				}
+			}
+		});
+		panelSettings.add(btnFileChooserArchivePath, "cell 1 8");
 	}
 
 	/**
@@ -738,7 +771,7 @@ public class View {
 
 	private void reloadPost() {
 		if (oUILogic.strMode.equals("post")) {
-			oUILogic.loadPost(oUILogic.oCurrentPost);
+			oUILogic.loadPost(oUILogic.oCurrentPost, true);
 		}
 	}
 
@@ -777,8 +810,8 @@ public class View {
 	}
 
 	private void tagClicked() {
-		textFieldSearch.setText((textFieldSearch.getText().length() == 0 ? ""
-				: (textFieldSearch.getText() + " ")) + modelTags.getElementAt(listSidebar.getSelectedIndex()).strTag);
+		textFieldSearch.setText((textFieldSearch.getText().length() == 0 ? "" : (textFieldSearch.getText() + " "))
+				+ modelTags.getElementAt(listSidebar.getSelectedIndex()).strTag);
 	}
 
 	private void saveSettings() {

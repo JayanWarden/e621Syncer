@@ -368,7 +368,7 @@ public class ViewerLogic {
 						label.addMouseListener(new MouseAdapter() {
 							public void mousePressed(MouseEvent e) {
 								oMain.oLog.log("Clicked on: " + o.oResultPostObject1.id, null, 5, LogType.NORMAL);
-								oMain.oUILogic.loadPost(o.oResultPostObject1);
+								oMain.oUILogic.loadPost(o.oResultPostObject1, false);
 							}
 						});
 						oMain.panelMainWindow.add(label);
@@ -446,7 +446,7 @@ public class ViewerLogic {
 				label.addMouseListener(new MouseAdapter() {
 					public void mousePressed(MouseEvent e) {
 						oMain.oLog.log("Clicked on: " + o.oResultPostObject1.id, null, 5, LogType.NORMAL);
-						oMain.oUILogic.loadPost(o.oResultPostObject1);
+						oMain.oUILogic.loadPost(o.oResultPostObject1, false);
 					}
 				});
 
@@ -492,7 +492,7 @@ public class ViewerLogic {
 				if (aQueueLeft.size() > 0) {
 					try {
 						aQueueRight.putFirst(oCurrentPost);
-						loadPost(aQueueLeft.take());
+						loadPost(aQueueLeft.take(), false);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -530,7 +530,7 @@ public class ViewerLogic {
 				if (aQueueRight.size() > 0) {
 					try {
 						aQueueLeft.putFirst(oCurrentPost);
-						loadPost(aQueueRight.take());
+						loadPost(aQueueRight.take(), false);
 					} catch (InterruptedException e) {
 						oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 					}
@@ -567,8 +567,9 @@ public class ViewerLogic {
 	 * Unloads the JPanel for the previews and loads the selected Post
 	 * 
 	 * @param o - PostObject, the post we want to load
+	 * @param bForceResize - boolean Force this post to conform to the current viewport size?
 	 */
-	public void loadPost(PostObject o) {
+	public void loadPost(PostObject o, boolean bForceResize) {
 		if (!bThreadBusy.get()) {
 			oCurrentPost = o;
 			startPreloading();
@@ -634,9 +635,9 @@ public class ViewerLogic {
 					oMain.frmE.getWidth() - oMain.panelSidebar.getWidth() - oMain.panelInfos.getWidth(),
 					oMain.frmE.getHeight() - oMain.panelButtonBar.getHeight() - oMain.panelNorth.getHeight() - 106));
 			if (o.strExtConv.equals("bpg")) {
-				loadImage(o, false);
+				loadImage(o, false, bForceResize);
 			} else if (o.strExtConv.equals("gif")) {
-				loadImage(o, true);
+				loadImage(o, true, bForceResize);
 			} else if (o.strExtConv.equals("swf")) {
 				loadSWF(o);
 			} else if (o.strExtConv.equals("mp4")) {
@@ -650,11 +651,12 @@ public class ViewerLogic {
 	 * Called by loadPost. If the selected post is an image, load the image and
 	 * display it.
 	 * 
-	 * @param o    - PostObject to load
-	 * @param bGif - boolean, is o a .gif? (we could parse that from the filename,
-	 *             but meh.)
+	 * @param o            - PostObject to load
+	 * @param bGif         - boolean, is o a .gif? (we could parse that from the
+	 *                     filename, but meh.)
+	 * @param bForceResize - boolean, should we forcefully resize the current image?
 	 */
-	private void loadImage(PostObject o, boolean bGif) {
+	private void loadImage(PostObject o, boolean bGif, boolean bForceResize) {
 		if (oTrackedCenter != null) {
 			oMain.panelViewer.remove(oTrackedCenter);
 			oTrackedCenter = null;
@@ -701,13 +703,13 @@ public class ViewerLogic {
 							}
 						}
 
-						if (o.bResized) {
-							label = new JLabel(new ImageIcon(o.oResized));
+						if (o.bResized && !bForceResize) {
+							label = new JLabel(o.oResized);
 						} else {
 							Dimension d = Config.getScaledDimension(
 									new Dimension(o.oImage.getWidth(), o.oImage.getHeight()), dPanel);
 							Config.resizeImage(o, d);
-							label = new JLabel(new ImageIcon(o.oResized));
+							label = new JLabel(o.oResized);
 						}
 					}
 					panel.add(label);

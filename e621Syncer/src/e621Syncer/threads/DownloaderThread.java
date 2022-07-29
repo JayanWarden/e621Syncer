@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -103,12 +104,13 @@ public class DownloaderThread implements Runnable {
 	 * @return - boolean success?
 	 */
 	public static boolean saveFile(URL imgURL, String imgSavePath, String ua, View oMain) {
-		boolean isSucceed = true;
-
+		RequestConfig config = RequestConfig.custom().setConnectionRequestTimeout(1000 * 60)
+				.setConnectTimeout(1000 * 60).setSocketTimeout(1000 * 60).build();
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 
 		HttpGet httpGet = new HttpGet(imgURL.toString());
 		httpGet.addHeader("User-Agent", ua);
+		httpGet.setConfig(config);
 
 		try {
 			CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
@@ -117,15 +119,12 @@ public class DownloaderThread implements Runnable {
 			if (imageEntity != null) {
 				FileUtils.copyInputStreamToFile(imageEntity.getContent(), new File(imgSavePath));
 			}
-
+			httpGet.releaseConnection();
+			return true;
 		} catch (IOException e) {
-			isSucceed = false;
 			oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 		}
-
-		httpGet.releaseConnection();
-
-		return isSucceed;
+		return false;
 	}
 
 	/**

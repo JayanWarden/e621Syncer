@@ -215,6 +215,7 @@ public class PreloaderThread implements Runnable {
 				oViewerLogic.oMain.oLog.log(null, e, 0, LogType.EXCEPTION);
 			}
 		}
+		bRecheckResize = true;
 	}
 
 	/**
@@ -317,13 +318,22 @@ public class PreloaderThread implements Runnable {
 			}
 
 			PostObject o = null;
+			PostObject o2 = null;
 			if (bRightLoader) {
 				if (oViewerLogic.aQueueLeft.size() > 0) {
 					o = oViewerLogic.aQueueLeft.peek();
+					if (oViewerLogic.aQueueLeft.size() > 1) {
+						Object[] temp = oViewerLogic.aQueueLeft.toArray();
+						o2 = (PostObject) temp[1];
+					}
 				}
 			} else {
 				if (oViewerLogic.aQueueRight.size() > 0) {
 					o = oViewerLogic.aQueueRight.peek();
+					if (oViewerLogic.aQueueRight.size() > 1) {
+						Object[] temp = oViewerLogic.aQueueRight.toArray();
+						o2 = (PostObject) temp[1];
+					}
 				}
 			}
 			if (o != null) {
@@ -331,6 +341,13 @@ public class PreloaderThread implements Runnable {
 					o.bResizeLock = true;
 					Config.resizeImage(o, oTrackedDimension);
 					o.bResizeLock = false;
+				}
+				if(o2 != null) {
+					if ((o2.bResized && bSizeCheck) || (!o2.bResized)) {
+						o2.bResizeLock = true;
+						Config.resizeImage(o2, oTrackedDimension);
+						o2.bResizeLock = false;
+					}
 				}
 			}
 		}

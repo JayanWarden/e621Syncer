@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 
+import javax.swing.ImageIcon;
+
 import e621Syncer.View;
 import e621Syncer.db.DBObject;
 
@@ -15,7 +17,7 @@ public class Config {
 
 	private File oConfigFile = new File("e621syncer.ini");
 
-	public String strVersion = "0.5.5.1";
+	public String strVersion = "0.5.6";
 	public String strUserAgent;
 	public String strTempPath = "";
 	public String strArchivePath = "";
@@ -276,21 +278,21 @@ public class Config {
 	public static void resizeImage(PostObject o, Dimension dViewport) {
 		Dimension d = getScaledDimension(new Dimension(o.oImage.getWidth(), o.oImage.getHeight()),
 				dViewport);
-		o.oResized = o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH);
+		o.oResized = new ImageIcon(o.oImage.getScaledInstance(d.width, d.height, java.awt.Image.SCALE_SMOOTH));
 		o.bResized = true;
 	}
 	
 	/**
-	 * Helper function to generate the correct dimension for the thumbnail crop
+	 * Helper function to generate new boundary constrained dimensions while preserving aspect ratio
 	 * 
-	 * @param imgSize  - Dimension original image size
+	 * @param source  - Dimension original image size
 	 * @param boundary - Dimension bounding box for the maximum size
 	 * @return Dimension new thumbnail size with correct aspect ratio
 	 */
-	public static Dimension getScaledDimension(Dimension imgSize, Dimension boundary) {
+	public static Dimension getScaledDimension(Dimension source, Dimension boundary) {
 
-		int original_width = imgSize.width;
-		int original_height = imgSize.height;
+		int original_width = source.width;
+		int original_height = source.height;
 		int bound_width = boundary.width;
 		int bound_height = boundary.height;
 		int new_width = original_width;
